@@ -1,0 +1,28 @@
+[package]
+name = "klayout-route"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Routing primitives (Planner / Stylizer / Bundler) for klayout-rs"
+
+[dependencies]
+klayout-core = { path = "../klayout-core", version = "0.0.1" }
+smallvec = { workspace = true }
+smol_str = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+
+[lints]
+workspace = true
+
+[[bench]]
+name = "rsmt"
+harness = false
+
+[[bench]]
+name = "pathfinder"
+harness = false

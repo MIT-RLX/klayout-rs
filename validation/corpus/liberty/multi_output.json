@@ -1,0 +1,56 @@
+{
+  "cells": [
+    {
+      "area": 1.8,
+      "name": "HA",
+      "pins": [
+        {
+          "cap": 0.35,
+          "direction": "input",
+          "name": "A"
+        },
+        {
+          "cap": 0.36,
+          "direction": "input",
+          "name": "B"
+        },
+        {
+          "cap": 0.0,
+          "direction": "output",
+          "name": "C"
+        },
+        {
+          "cap": 0.0,
+          "direction": "output",
+          "name": "S"
+        }
+      ]
+    },
+    {
+      "area": 2.2,
+      "name": "MUX2",
+      "pins": [
+        {
+          "cap": 0.4,
+          "direction": "input",
+          "name": "I0"
+        },
+        {
+          "cap": 0.41,
+          "direction": "input",
+          "name": "I1"
+        },
+        {
+          "cap": 0.3,
+          "direction": "input",
+          "name": "S"
+        },
+        {
+          "cap": 0.0,
+          "direction": "output",
+          "name": "Z"
+        }
+      ]
+    }
+  ]
+}

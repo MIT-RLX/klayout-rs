@@ -1,0 +1,12 @@
+magic
+tech scmos
+timestamp 0
+<< metal1 >>
+rect 0 0 10 10
+rect 20 0 30 10
+rect 40 0 50 10
+rect 60 0 70 10
+rect 80 0 90 10
+rect 0 20 10 30
+rect 20 20 30 30
+<< end >>

@@ -1,0 +1,116 @@
+{
+  "dbu_um": 0.001,
+  "cells": [
+    {
+      "name": "POLYS",
+      "shapes": [
+        {
+          "type": "box",
+          "layer": 2,
+          "datatype": 0,
+          "left": 50,
+          "bottom": 0,
+          "right": 70,
+          "top": 20
+        },
+        {
+          "type": "polygon",
+          "layer": 2,
+          "datatype": 0,
+          "hull": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              20
+            ],
+            [
+              10,
+              20
+            ],
+            [
+              10,
+              10
+            ],
+            [
+              20,
+              10
+            ],
+            [
+              20,
+              0
+            ]
+          ],
+          "holes": []
+        },
+        {
+          "type": "polygon",
+          "layer": 2,
+          "datatype": 0,
+          "hull": [
+            [
+              0,
+              30
+            ],
+            [
+              5,
+              40
+            ],
+            [
+              15,
+              40
+            ],
+            [
+              20,
+              30
+            ]
+          ],
+          "holes": []
+        },
+        {
+          "type": "polygon",
+          "layer": 2,
+          "datatype": 0,
+          "hull": [
+            [
+              30,
+              30
+            ],
+            [
+              30,
+              40
+            ],
+            [
+              40,
+              40
+            ]
+          ],
+          "holes": []
+        },
+        {
+          "type": "polygon",
+          "layer": 2,
+          "datatype": 0,
+          "hull": [
+            [
+              50,
+              30
+            ],
+            [
+              40,
+              50
+            ],
+            [
+              45,
+              50
+            ]
+          ],
+          "holes": []
+        }
+      ],
+      "instances": []
+    }
+  ]
+}

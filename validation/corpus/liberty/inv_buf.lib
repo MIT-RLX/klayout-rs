@@ -1,0 +1,14 @@
+library(test) {
+  time_unit : "1ns";
+  voltage_unit : "1V";
+  cell(INV) {
+    area : 1.0;
+    pin(A) { direction : input; capacitance : 0.50; }
+    pin(Y) { direction : output; }
+  }
+  cell(BUF) {
+    area : 2.0;
+    pin(A) { direction : input; capacitance : 0.60; }
+    pin(Y) { direction : output; }
+  }
+}

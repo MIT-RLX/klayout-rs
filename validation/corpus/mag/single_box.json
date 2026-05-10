@@ -1,0 +1,35 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "single_box",
+      "shapes": [
+        {
+          "datatype": -1,
+          "holes": [],
+          "hull": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              50000
+            ],
+            [
+              100000,
+              50000
+            ],
+            [
+              100000,
+              0
+            ]
+          ],
+          "layer": -1,
+          "type": "polygon"
+        }
+      ]
+    }
+  ],
+  "dbu_um": 0.001
+}

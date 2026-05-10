@@ -1,0 +1,7 @@
+library(io) {
+  cell(BIDIR) {
+    area : 5.0;
+    pin(IO) { direction : inout; capacitance : 1.20; }
+    pin(EN) { direction : input; capacitance : 0.40; }
+  }
+}

@@ -1,0 +1,19 @@
+[package]
+name = "klayout-deck"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Declarative DRC rule decks for klayout-rs"
+
+[dependencies]
+klayout-core = { path = "../klayout-core", version = "0.0.1" }
+klayout-geom = { path = "../klayout-geom", version = "0.0.1" }
+klayout-drc = { path = "../klayout-drc", version = "0.0.1" }
+rayon = { workspace = true }
+smol_str = { workspace = true }
+
+[lints]
+workspace = true

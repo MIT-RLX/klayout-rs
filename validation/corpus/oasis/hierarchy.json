@@ -1,0 +1,44 @@
+{
+  "dbu_um": 0.001,
+  "cells": [
+    {
+      "name": "leaf",
+      "shapes": [
+        {
+          "type": "box",
+          "layer": 1,
+          "datatype": 0,
+          "left": 0,
+          "bottom": 0,
+          "right": 10,
+          "top": 10
+        }
+      ],
+      "instances": []
+    },
+    {
+      "name": "top",
+      "shapes": [
+        {
+          "type": "box",
+          "layer": 1,
+          "datatype": 0,
+          "left": 20,
+          "bottom": 0,
+          "right": 30,
+          "top": 10
+        }
+      ],
+      "instances": [
+        {
+          "sname": "leaf",
+          "trans": [
+            0,
+            50,
+            0
+          ]
+        }
+      ]
+    }
+  ]
+}

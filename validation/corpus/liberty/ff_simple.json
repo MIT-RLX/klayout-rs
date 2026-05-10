@@ -1,0 +1,25 @@
+{
+  "cells": [
+    {
+      "area": 4.0,
+      "name": "DFF",
+      "pins": [
+        {
+          "cap": 0.5,
+          "direction": "input",
+          "name": "CK"
+        },
+        {
+          "cap": 0.3,
+          "direction": "input",
+          "name": "D"
+        },
+        {
+          "cap": 0.0,
+          "direction": "output",
+          "name": "Q"
+        }
+      ]
+    }
+  ]
+}

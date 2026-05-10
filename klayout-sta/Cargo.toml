@@ -1,0 +1,17 @@
+[package]
+name = "klayout-sta"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Static timing analysis primitives for klayout-rs"
+
+[dependencies]
+klayout-liberty = { path = "../klayout-liberty", version = "0.0.1" }
+smol_str = { workspace = true }
+thiserror = { workspace = true }
+
+[lints]
+workspace = true

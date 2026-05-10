@@ -1,0 +1,54 @@
+[package]
+name = "klayout-rs-fuzz"
+version = "0.0.0"
+edition = "2021"
+publish = false
+license = "GPL-3.0-only"
+description = "libfuzzer harnesses for klayout-rs parsers"
+
+# This crate is intentionally NOT a member of the parent workspace —
+# `cargo-fuzz` requires its own [workspace] section so it can pull in
+# `libfuzzer-sys` (a build-script-bearing C crate) without forcing the
+# main workspace to depend on it. Run `cargo +nightly fuzz run <target>`
+# from this directory.
+[workspace]
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+klayout-core   = { path = "../klayout-core" }
+klayout-io     = { path = "../klayout-io" }
+klayout-lef    = { path = "../klayout-lef" }
+klayout-liberty = { path = "../klayout-liberty" }
+
+[[bin]]
+name = "fuzz_gds"
+path = "fuzz_targets/fuzz_gds.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "fuzz_oasis"
+path = "fuzz_targets/fuzz_oasis.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "fuzz_lef"
+path = "fuzz_targets/fuzz_lef.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "fuzz_def"
+path = "fuzz_targets/fuzz_def.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "fuzz_liberty"
+path = "fuzz_targets/fuzz_liberty.rs"
+test = false
+doc = false

@@ -1,0 +1,50 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "unit",
+      "shapes": [
+        {
+          "bottom": 0,
+          "datatype": 0,
+          "layer": 1,
+          "left": 0,
+          "right": 10,
+          "top": 10,
+          "type": "box"
+        }
+      ]
+    },
+    {
+      "instances": [
+        {
+          "sname": "unit",
+          "trans": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "sname": "unit",
+          "trans": [
+            0,
+            100,
+            0
+          ]
+        },
+        {
+          "sname": "unit",
+          "trans": [
+            1,
+            50,
+            0
+          ]
+        }
+      ],
+      "name": "parent",
+      "shapes": []
+    }
+  ],
+  "dbu_um": 0.001
+}

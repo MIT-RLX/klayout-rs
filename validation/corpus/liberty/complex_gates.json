@@ -1,0 +1,61 @@
+{
+  "cells": [
+    {
+      "area": 2.5,
+      "name": "AOI21",
+      "pins": [
+        {
+          "cap": 0.4,
+          "direction": "input",
+          "name": "A1"
+        },
+        {
+          "cap": 0.41,
+          "direction": "input",
+          "name": "A2"
+        },
+        {
+          "cap": 0.5,
+          "direction": "input",
+          "name": "B"
+        },
+        {
+          "cap": 0.0,
+          "direction": "output",
+          "name": "Y"
+        }
+      ]
+    },
+    {
+      "area": 3.0,
+      "name": "OAI22",
+      "pins": [
+        {
+          "cap": 0.38,
+          "direction": "input",
+          "name": "A1"
+        },
+        {
+          "cap": 0.39,
+          "direction": "input",
+          "name": "A2"
+        },
+        {
+          "cap": 0.42,
+          "direction": "input",
+          "name": "B1"
+        },
+        {
+          "cap": 0.43,
+          "direction": "input",
+          "name": "B2"
+        },
+        {
+          "cap": 0.0,
+          "direction": "output",
+          "name": "Y"
+        }
+      ]
+    }
+  ]
+}

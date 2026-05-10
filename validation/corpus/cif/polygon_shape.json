@@ -1,0 +1,31 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "C1",
+      "shapes": [
+        {
+          "datatype": 0,
+          "holes": [],
+          "hull": [
+            [
+              0,
+              0
+            ],
+            [
+              500,
+              1000
+            ],
+            [
+              1000,
+              0
+            ]
+          ],
+          "layer": 1,
+          "type": "polygon"
+        }
+      ]
+    }
+  ],
+  "dbu_um": 0.001
+}

@@ -1,0 +1,14 @@
+library(t2) {
+  cell(NAND2) {
+    area : 1.5;
+    pin(A) { direction : input; capacitance : 0.40; }
+    pin(B) { direction : input; capacitance : 0.45; }
+    pin(Y) { direction : output; }
+  }
+  cell(NOR2) {
+    area : 1.6;
+    pin(A) { direction : input; capacitance : 0.35; }
+    pin(B) { direction : input; capacitance : 0.42; }
+    pin(Y) { direction : output; }
+  }
+}

@@ -1,0 +1,24 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "empty",
+      "shapes": []
+    },
+    {
+      "instances": [
+        {
+          "sname": "empty",
+          "trans": [
+            0,
+            0,
+            0
+          ]
+        }
+      ],
+      "name": "refonly",
+      "shapes": []
+    }
+  ],
+  "dbu_um": 0.001
+}

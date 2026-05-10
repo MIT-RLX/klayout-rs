@@ -1,0 +1,72 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "leaf",
+      "shapes": [
+        {
+          "bottom": 0,
+          "datatype": 0,
+          "layer": 1,
+          "left": 0,
+          "right": 5,
+          "top": 5,
+          "type": "box"
+        }
+      ]
+    },
+    {
+      "instances": [
+        {
+          "sname": "leaf",
+          "trans": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "sname": "leaf",
+          "trans": [
+            0,
+            10,
+            0
+          ]
+        }
+      ],
+      "name": "mid",
+      "shapes": []
+    },
+    {
+      "instances": [
+        {
+          "sname": "mid",
+          "trans": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "sname": "mid",
+          "trans": [
+            1,
+            200,
+            0
+          ]
+        },
+        {
+          "sname": "mid",
+          "trans": [
+            2,
+            100,
+            100
+          ]
+        }
+      ],
+      "name": "top",
+      "shapes": []
+    }
+  ],
+  "dbu_um": 0.001
+}

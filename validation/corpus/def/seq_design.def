@@ -1,0 +1,22 @@
+VERSION 5.7 ;
+DIVIDERCHAR "/" ;
+BUSBITCHARS "[]" ;
+DESIGN seq ;
+UNITS DISTANCE MICRONS 1000 ;
+DIEAREA ( 0 0 ) ( 50000 10000 ) ;
+
+COMPONENTS 4 ;
+- FF1 DFF + PLACED (  1000 1000 ) N ;
+- FF2 DFF + PLACED ( 10000 1000 ) N ;
+- C1  INV + PLACED (  6000 1000 ) N ;
+- CK_BUF BUF + PLACED ( 1000 5000 ) N ;
+END COMPONENTS
+
+NETS 4 ;
+- clk     ( CK_BUF Y ) ( FF1 CK ) ( FF2 CK ) ;
+- data    ( FF1 Q ) ( C1 A ) ;
+- data_bar ( C1 Y ) ( FF2 D ) ;
+- clk_in  ( CK_BUF A ) ;
+END NETS
+
+END DESIGN

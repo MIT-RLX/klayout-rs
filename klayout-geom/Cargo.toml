@@ -1,0 +1,22 @@
+[package]
+name = "klayout-geom"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Boolean ops, sizing, and region algebra for klayout-rs"
+
+[dependencies]
+klayout-core = { path = "../klayout-core", version = "0.0.1" }
+klayout-spatial = { path = "../klayout-spatial", version = "0.0.1" }
+i_overlay = { workspace = true }
+smallvec = { workspace = true }
+
+[dev-dependencies]
+smallvec = { workspace = true }
+proptest = { workspace = true }
+
+[lints]
+workspace = true

@@ -1,0 +1,44 @@
+{
+  "design": "top2",
+  "nets": [
+    {
+      "connections": [
+        "X1:Y",
+        "X2:A"
+      ],
+      "coupling": [
+        [
+          "b",
+          0.15
+        ],
+        [
+          "c",
+          0.075
+        ]
+      ],
+      "name": "a",
+      "resistance": 0.0,
+      "total_cap": 1.0
+    },
+    {
+      "connections": [
+        "X3:Y",
+        "X4:A"
+      ],
+      "coupling": [],
+      "name": "b",
+      "resistance": 0.0,
+      "total_cap": 1.2
+    },
+    {
+      "connections": [
+        "X5:Y",
+        "X6:A"
+      ],
+      "coupling": [],
+      "name": "c",
+      "resistance": 0.0,
+      "total_cap": 0.8
+    }
+  ]
+}

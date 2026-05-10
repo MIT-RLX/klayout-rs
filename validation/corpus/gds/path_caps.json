@@ -1,0 +1,110 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "paths",
+      "shapes": [
+        {
+          "begin_ext": 0,
+          "datatype": 0,
+          "end_ext": 0,
+          "layer": 1,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              100,
+              0
+            ]
+          ],
+          "round": false,
+          "type": "path",
+          "width": 10
+        },
+        {
+          "begin_ext": 0,
+          "datatype": 0,
+          "end_ext": 0,
+          "layer": 1,
+          "points": [
+            [
+              0,
+              30
+            ],
+            [
+              100,
+              30
+            ]
+          ],
+          "round": false,
+          "type": "path",
+          "width": 10
+        },
+        {
+          "begin_ext": 0,
+          "datatype": 0,
+          "end_ext": 0,
+          "layer": 1,
+          "points": [
+            [
+              0,
+              60
+            ],
+            [
+              100,
+              60
+            ]
+          ],
+          "round": false,
+          "type": "path",
+          "width": 10
+        },
+        {
+          "begin_ext": 5,
+          "datatype": 0,
+          "end_ext": 7,
+          "layer": 1,
+          "points": [
+            [
+              0,
+              90
+            ],
+            [
+              100,
+              90
+            ]
+          ],
+          "round": false,
+          "type": "path",
+          "width": 10
+        },
+        {
+          "begin_ext": 0,
+          "datatype": 0,
+          "end_ext": 0,
+          "layer": 2,
+          "points": [
+            [
+              0,
+              200
+            ],
+            [
+              50,
+              200
+            ],
+            [
+              50,
+              300
+            ]
+          ],
+          "round": false,
+          "type": "path",
+          "width": 30
+        }
+      ]
+    }
+  ],
+  "dbu_um": 0.001
+}

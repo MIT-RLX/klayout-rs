@@ -1,0 +1,19 @@
+[package]
+name = "klayout-io"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "GDSII reader and writer for klayout-rs"
+
+[dependencies]
+klayout-core = { path = "../klayout-core", version = "0.0.1" }
+smallvec = { workspace = true }
+smol_str = { workspace = true }
+thiserror = { workspace = true }
+flate2 = { workspace = true }
+
+[lints]
+workspace = true

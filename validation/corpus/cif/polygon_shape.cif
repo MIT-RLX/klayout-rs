@@ -1,0 +1,7 @@
+(triangle polygon);
+DS 1 1 1;
+L L1;
+P 0 0 100 0 50 100;
+DF;
+C 1;
+E

@@ -1,0 +1,23 @@
+[package]
+name = "klayout-core"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Core data model for klayout-rs: coordinates, shapes, cells, libraries"
+
+[dependencies]
+smallvec = { workspace = true }
+smol_str = { workspace = true }
+dashmap = { workspace = true }
+blake3 = { workspace = true }
+thiserror = { workspace = true }
+parking_lot = { workspace = true }
+
+[dev-dependencies]
+proptest = { workspace = true }
+
+[lints]
+workspace = true

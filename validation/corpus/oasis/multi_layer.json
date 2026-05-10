@@ -1,0 +1,111 @@
+{
+  "dbu_um": 0.001,
+  "cells": [
+    {
+      "name": "MULTI",
+      "shapes": [
+        {
+          "type": "box",
+          "layer": 1,
+          "datatype": 0,
+          "left": 0,
+          "bottom": 0,
+          "right": 20,
+          "top": 10
+        },
+        {
+          "type": "box",
+          "layer": 1,
+          "datatype": 0,
+          "left": 120,
+          "bottom": 0,
+          "right": 140,
+          "top": 10
+        },
+        {
+          "type": "box",
+          "layer": 1,
+          "datatype": 0,
+          "left": 30,
+          "bottom": 0,
+          "right": 50,
+          "top": 10
+        },
+        {
+          "type": "box",
+          "layer": 1,
+          "datatype": 0,
+          "left": 60,
+          "bottom": 0,
+          "right": 80,
+          "top": 10
+        },
+        {
+          "type": "box",
+          "layer": 1,
+          "datatype": 0,
+          "left": 90,
+          "bottom": 0,
+          "right": 110,
+          "top": 10
+        },
+        {
+          "type": "box",
+          "layer": 2,
+          "datatype": 0,
+          "left": 0,
+          "bottom": 100,
+          "right": 40,
+          "top": 140
+        },
+        {
+          "type": "box",
+          "layer": 2,
+          "datatype": 0,
+          "left": 100,
+          "bottom": 100,
+          "right": 140,
+          "top": 140
+        },
+        {
+          "type": "box",
+          "layer": 2,
+          "datatype": 0,
+          "left": 50,
+          "bottom": 100,
+          "right": 90,
+          "top": 140
+        },
+        {
+          "type": "polygon",
+          "layer": 5,
+          "datatype": 7,
+          "hull": [
+            [
+              0,
+              200
+            ],
+            [
+              0,
+              250
+            ],
+            [
+              25,
+              280
+            ],
+            [
+              50,
+              250
+            ],
+            [
+              50,
+              200
+            ]
+          ],
+          "holes": []
+        }
+      ],
+      "instances": []
+    }
+  ]
+}

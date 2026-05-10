@@ -1,0 +1,52 @@
+*SPEF "IEEE 1481-1998"
+*DESIGN "many"
+*DATE "now"
+*VENDOR "test"
+*PROGRAM "klayout-rs"
+*VERSION "0.1"
+*DESIGN_FLOW ""
+*DIVIDER /
+*DELIMITER :
+*BUS_DELIMITER [ ]
+*T_UNIT 1 NS
+*C_UNIT 1 FF
+*R_UNIT 1 OHM
+*L_UNIT 1 HENRY
+
+*NAME_MAP
+*1 n1
+*2 n2
+*3 n3
+*4 n4
+*5 n5
+
+*D_NET *1 0.500
+*CONN
+*I U1:Y I
+*I U2:A I
+*END
+
+*D_NET *2 0.750
+*CONN
+*I U2:Y I
+*I U3:A I
+*END
+
+*D_NET *3 1.250
+*CONN
+*I U3:Y I
+*I U4:A I
+*I U5:A I
+*END
+
+*D_NET *4 0.420
+*CONN
+*I U4:Y I
+*I U6:A I
+*END
+
+*D_NET *5 1.100
+*CONN
+*I U5:Y I
+*I U6:B I
+*END

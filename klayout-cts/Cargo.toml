@@ -1,0 +1,17 @@
+[package]
+name = "klayout-cts"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Clock tree synthesis for klayout-rs"
+
+[dependencies]
+klayout-core = { path = "../klayout-core", version = "0.0.1" }
+smol_str = { workspace = true }
+rstar = { workspace = true }
+
+[lints]
+workspace = true

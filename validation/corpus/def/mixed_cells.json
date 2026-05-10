@@ -1,0 +1,62 @@
+{
+  "bpins": [],
+  "design": "top",
+  "die": [
+    0,
+    0,
+    20000,
+    5000
+  ],
+  "instances": [
+    {
+      "master": "INV",
+      "name": "U1",
+      "x_dbu": 1000,
+      "y_dbu": 1000
+    },
+    {
+      "master": "BUF",
+      "name": "U2",
+      "x_dbu": 3000,
+      "y_dbu": 1000
+    },
+    {
+      "master": "INV",
+      "name": "U3",
+      "x_dbu": 6000,
+      "y_dbu": 1000
+    },
+    {
+      "master": "BUF",
+      "name": "U4",
+      "x_dbu": 8000,
+      "y_dbu": 1000
+    }
+  ],
+  "nets": [
+    {
+      "connections": [
+        "U1:Y",
+        "U2:A"
+      ],
+      "name": "n1",
+      "wires": []
+    },
+    {
+      "connections": [
+        "U2:Y",
+        "U3:A"
+      ],
+      "name": "n2",
+      "wires": []
+    },
+    {
+      "connections": [
+        "U3:Y",
+        "U4:A"
+      ],
+      "name": "n3",
+      "wires": []
+    }
+  ]
+}

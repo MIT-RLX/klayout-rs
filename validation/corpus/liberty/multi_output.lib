@@ -1,0 +1,16 @@
+library(mo) {
+  cell(HA) {
+    area : 1.8;
+    pin(A) { direction : input; capacitance : 0.35; }
+    pin(B) { direction : input; capacitance : 0.36; }
+    pin(S) { direction : output; }
+    pin(C) { direction : output; }
+  }
+  cell(MUX2) {
+    area : 2.2;
+    pin(I0) { direction : input; capacitance : 0.40; }
+    pin(I1) { direction : input; capacitance : 0.41; }
+    pin(S)  { direction : input; capacitance : 0.30; }
+    pin(Z)  { direction : output; }
+  }
+}

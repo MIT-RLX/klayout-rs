@@ -1,0 +1,16 @@
+[package]
+name = "klayout-spatial"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Spatial index (grid bucketing) for klayout-rs"
+
+[dependencies]
+klayout-core = { path = "../klayout-core", version = "0.0.1" }
+rstar = { workspace = true }
+
+[lints]
+workspace = true

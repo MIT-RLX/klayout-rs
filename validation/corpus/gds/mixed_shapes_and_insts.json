@@ -1,0 +1,164 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "dot",
+      "shapes": [
+        {
+          "bottom": -1,
+          "datatype": 0,
+          "layer": 1,
+          "left": -1,
+          "right": 1,
+          "top": 1,
+          "type": "box"
+        }
+      ]
+    },
+    {
+      "instances": [
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            12,
+            12
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            12,
+            37
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            12,
+            62
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            12,
+            87
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            37,
+            12
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            37,
+            37
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            37,
+            62
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            37,
+            87
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            62,
+            12
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            62,
+            37
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            62,
+            62
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            62,
+            87
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            87,
+            12
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            87,
+            37
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            87,
+            62
+          ]
+        },
+        {
+          "sname": "dot",
+          "trans": [
+            0,
+            87,
+            87
+          ]
+        }
+      ],
+      "name": "grid",
+      "shapes": [
+        {
+          "bottom": 0,
+          "datatype": 0,
+          "layer": 1,
+          "left": 0,
+          "right": 100,
+          "top": 100,
+          "type": "box"
+        }
+      ]
+    }
+  ],
+  "dbu_um": 0.001
+}

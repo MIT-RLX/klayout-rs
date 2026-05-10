@@ -1,0 +1,61 @@
+{
+  "bpins": [],
+  "design": "top",
+  "die": [
+    0,
+    0,
+    20000,
+    20000
+  ],
+  "instances": [
+    {
+      "master": "INV",
+      "name": "U_E",
+      "x_dbu": 1000,
+      "y_dbu": 5920
+    },
+    {
+      "master": "INV",
+      "name": "U_FE",
+      "x_dbu": 2400,
+      "y_dbu": 13920
+    },
+    {
+      "master": "INV",
+      "name": "U_FN",
+      "x_dbu": 1920,
+      "y_dbu": 9000
+    },
+    {
+      "master": "INV",
+      "name": "U_FS",
+      "x_dbu": 1000,
+      "y_dbu": 12400
+    },
+    {
+      "master": "INV",
+      "name": "U_FW",
+      "x_dbu": 1000,
+      "y_dbu": 15000
+    },
+    {
+      "master": "INV",
+      "name": "U_N",
+      "x_dbu": 1000,
+      "y_dbu": 1000
+    },
+    {
+      "master": "INV",
+      "name": "U_S",
+      "x_dbu": 1920,
+      "y_dbu": 4400
+    },
+    {
+      "master": "INV",
+      "name": "U_W",
+      "x_dbu": 2400,
+      "y_dbu": 7000
+    }
+  ],
+  "nets": []
+}

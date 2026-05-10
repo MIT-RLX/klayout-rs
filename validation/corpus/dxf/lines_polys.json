@@ -1,0 +1,73 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "TOP",
+      "shapes": [
+        {
+          "begin_ext": 0,
+          "datatype": 0,
+          "end_ext": 0,
+          "layer": 1,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              10000,
+              0
+            ]
+          ],
+          "round": false,
+          "type": "path",
+          "width": 0
+        },
+        {
+          "begin_ext": 0,
+          "datatype": 0,
+          "end_ext": 0,
+          "layer": 1,
+          "points": [
+            [
+              0,
+              10000
+            ],
+            [
+              10000,
+              10000
+            ]
+          ],
+          "round": false,
+          "type": "path",
+          "width": 0
+        },
+        {
+          "datatype": 0,
+          "holes": [],
+          "hull": [
+            [
+              100000,
+              0
+            ],
+            [
+              100000,
+              50000
+            ],
+            [
+              200000,
+              50000
+            ],
+            [
+              200000,
+              0
+            ]
+          ],
+          "layer": 3,
+          "type": "polygon"
+        }
+      ]
+    }
+  ],
+  "dbu_um": 0.001
+}

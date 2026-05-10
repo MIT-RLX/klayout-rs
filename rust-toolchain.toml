@@ -1,0 +1,19 @@
+# Pinned toolchain for reproducible builds.
+#
+# Why pin: rustc minor releases occasionally tighten lints
+# (`#[deny(warnings)]` is an absolute commitment, so a stricter compiler
+# can fail builds that worked yesterday) and library-MSRV mismatches
+# can change feature gates. Pinning is the cheap way to guarantee
+# `cargo test --workspace` produces the same outcome on every machine
+# we care about.
+#
+# Floor: ≥ 1.85 (stabilizes `edition2024`, required by transitively-
+# patched rlx-* crates). We pin slightly higher so future workspace
+# additions don't immediately bump the floor.
+#
+# To upgrade: bump the version, run the workspace's full test sweep,
+# and commit the change atomically with any source fixups required.
+[toolchain]
+channel = "1.94.0"
+components = ["rustfmt", "clippy"]
+profile = "minimal"

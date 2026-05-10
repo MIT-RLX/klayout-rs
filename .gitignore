@@ -1,0 +1,61 @@
+# Rust
+/target
+**/target
+**/*.rs.bk
+*.pdb
+
+# Cargo
+# Keep Cargo.lock for binary crates / workspaces (default for apps).
+# Uncomment if this is purely a library workspace:
+# Cargo.lock
+
+# Fuzzing
+fuzz/target
+fuzz/corpus
+fuzz/artifacts
+fuzz/coverage
+
+# Cargo deny / supply-chain caches
+.cargo-ok
+
+# IDE / editors
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Build / coverage
+*.profraw
+*.profdata
+lcov.info
+coverage/
+tarpaulin-report.html
+
+# Logs and temp files
+*.log
+tmp/
+.tmp/
+
+# Environment
+.env
+.env.local
+.envrc
+
+# Python (tooling/scripts)
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Node (if any docs tooling)
+node_modules/
+
+# Local Claude / agent state
+.claude/settings.local.json

@@ -1,0 +1,15 @@
+(rotated and mirrored child instances);
+DS 2 1 1;
+L L1;
+B 100 50 50 25;
+DF;
+DS 1 1 1;
+L L2;
+B 50 50 25 25;
+C 2 T 0 0;
+C 2 R 0 1 T 200 0;
+C 2 R -1 0 T 400 0;
+C 2 MX T 600 0;
+DF;
+C 1;
+E

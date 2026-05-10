@@ -1,0 +1,65 @@
+{
+  "design": "seq",
+  "die": [
+    0,
+    0,
+    50000,
+    10000
+  ],
+  "instances": [
+    {
+      "master": "INV",
+      "name": "C1",
+      "x_dbu": 6000,
+      "y_dbu": 1000
+    },
+    {
+      "master": "BUF",
+      "name": "CK_BUF",
+      "x_dbu": 1000,
+      "y_dbu": 5000
+    },
+    {
+      "master": "DFF",
+      "name": "FF1",
+      "x_dbu": 1000,
+      "y_dbu": 1000
+    },
+    {
+      "master": "DFF",
+      "name": "FF2",
+      "x_dbu": 10000,
+      "y_dbu": 1000
+    }
+  ],
+  "nets": [
+    {
+      "connections": [
+        "CK_BUF:Y",
+        "FF1:CK",
+        "FF2:CK"
+      ],
+      "name": "clk"
+    },
+    {
+      "connections": [
+        "CK_BUF:A"
+      ],
+      "name": "clk_in"
+    },
+    {
+      "connections": [
+        "C1:A",
+        "FF1:Q"
+      ],
+      "name": "data"
+    },
+    {
+      "connections": [
+        "C1:Y",
+        "FF2:D"
+      ],
+      "name": "data_bar"
+    }
+  ]
+}

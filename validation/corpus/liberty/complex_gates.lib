@@ -1,0 +1,17 @@
+library(cg) {
+  cell(AOI21) {
+    area : 2.5;
+    pin(A1) { direction : input; capacitance : 0.40; }
+    pin(A2) { direction : input; capacitance : 0.41; }
+    pin(B)  { direction : input; capacitance : 0.50; }
+    pin(Y)  { direction : output; }
+  }
+  cell(OAI22) {
+    area : 3.0;
+    pin(A1) { direction : input; capacitance : 0.38; }
+    pin(A2) { direction : input; capacitance : 0.39; }
+    pin(B1) { direction : input; capacitance : 0.42; }
+    pin(B2) { direction : input; capacitance : 0.43; }
+    pin(Y)  { direction : output; }
+  }
+}

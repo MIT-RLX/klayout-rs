@@ -1,0 +1,102 @@
+[workspace]
+resolver = "2"
+members = [
+    "klayout-core",
+    "klayout-io",
+    "klayout-geom",
+    "klayout-pdk",
+    "klayout-drc",
+    "klayout-connect",
+    "klayout-route",
+    "klayout-spatial",
+    "klayout-deck",
+    "klayout-cts",
+    "klayout-lef",
+    "klayout-liberty",
+    "klayout-place",
+    "klayout-sta",
+    "klayout",
+    "validation/klayout-validate",
+]
+
+# rlx is a separate workspace published independently. While it's
+# unpublished, point any rlx-* dependency a klayout-rs crate declares
+# to the local checkout at /Users/Shared/rlx. Once rlx is on crates.io
+# this patch block can be removed (or repointed at a git URL).
+#
+# Cargo will print "patch ... was not used" warnings for every entry
+# below until a klayout-rs crate actually depends on rlx-*. They are
+# informational and don't fail the build; they go away as crates
+# adopt rlx.
+[patch.crates-io]
+rlx-ir       = { path = "/Users/Shared/rlx/rlx-ir" }
+rlx-opt      = { path = "/Users/Shared/rlx/rlx-opt" }
+rlx-driver   = { path = "/Users/Shared/rlx/rlx-driver" }
+rlx-cpu      = { path = "/Users/Shared/rlx/rlx-cpu" }
+rlx-metal    = { path = "/Users/Shared/rlx/rlx-metal" }
+rlx-mlx      = { path = "/Users/Shared/rlx/rlx-mlx" }
+rlx-wgpu     = { path = "/Users/Shared/rlx/rlx-wgpu" }
+rlx-cuda     = { path = "/Users/Shared/rlx/rlx-cuda" }
+rlx-rocm     = { path = "/Users/Shared/rlx/rlx-rocm" }
+rlx-tpu      = { path = "/Users/Shared/rlx/rlx-tpu" }
+rlx-cortexm  = { path = "/Users/Shared/rlx/rlx-cortexm" }
+rlx-fpga     = { path = "/Users/Shared/rlx/rlx-fpga" }
+rlx-models   = { path = "/Users/Shared/rlx/rlx-models" }
+rlx-gguf     = { path = "/Users/Shared/rlx/rlx-gguf" }
+rlx-macros   = { path = "/Users/Shared/rlx/rlx-macros" }
+rlx-runtime  = { path = "/Users/Shared/rlx/rlx-runtime" }
+rlx-sparse   = { path = "/Users/Shared/rlx/rlx-sparse" }
+rlx-linalg   = { path = "/Users/Shared/rlx/rlx-linalg" }
+rlx-bench    = { path = "/Users/Shared/rlx/rlx-bench" }
+
+[workspace.package]
+version = "0.0.1"
+edition = "2021"
+license = "GPL-3.0-only"
+rust-version = "1.75"
+authors = ["Eugene Hauptmann", "Nataliya Kosmyna"]
+repository = "https://github.com/MIT-RLX/klayout-rs"
+
+[workspace.dependencies]
+smallvec = { version = "1.13", features = ["union", "const_generics"] }
+smol_str = "0.3"
+dashmap = "6"
+blake3 = "1.5"
+thiserror = "1.0"
+anyhow = "1"
+parking_lot = "0.12"
+serde = { version = "1.0", features = ["derive"] }
+serde_json = "1.0"
+i_overlay = "6"
+rayon = "1.10"
+proptest = "1"
+rstar = "0.12"
+flate2 = "1"
+criterion = { version = "0.5", default-features = false, features = ["plotters", "cargo_bench_support"] }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+
+# Lint configuration shared across every workspace crate. Each crate's
+# Cargo.toml opts in via `[lints] workspace = true`. The intent: any
+# warning the compiler or clippy raises is a build failure in CI, so
+# regressions surface immediately rather than accumulating noise.
+[workspace.lints.rust]
+warnings = "deny"
+
+[workspace.lints.clippy]
+# A small, opinionated set. We avoid clippy::pedantic / nursery — too
+# noisy on EDA code that has many legitimate `as`-casts and bit-twiddling.
+# We deliberately skip clippy::unwrap_used and clippy::expect_used —
+# every checked-in unwrap/expect was reviewed in the audit pass and
+# either eliminated or documented with an invariant; the lint would
+# false-positive every audited site and adds friction on tests. New
+# unwraps land via code review, not lint.
+todo = "deny"            # No checked-in todo!() — finish the work or open an issue.
+unimplemented = "deny"   # Same.
+dbg_macro = "deny"       # Strip debug prints before merging.
+# Disable a couple of stylistic lints that produce noise on existing,
+# already-reviewed code without changing correctness.
+needless_range_loop = "allow"
+too_many_arguments = "allow"

@@ -1,0 +1,25 @@
+{
+  "design": "top",
+  "nets": [
+    {
+      "connections": [
+        "U1:Y",
+        "U2:A"
+      ],
+      "coupling": [],
+      "name": "net1",
+      "resistance": 0.0,
+      "total_cap": 1.5
+    },
+    {
+      "connections": [
+        "U2:Y",
+        "U3:A"
+      ],
+      "coupling": [],
+      "name": "net2",
+      "resistance": 0.0,
+      "total_cap": 2.25
+    }
+  ]
+}

@@ -1,0 +1,58 @@
+{
+  "design": "mc",
+  "nets": [
+    {
+      "connections": [
+        "X1:Y",
+        "X2:A"
+      ],
+      "coupling": [],
+      "name": "agg1",
+      "resistance": 0.0,
+      "total_cap": 0.5
+    },
+    {
+      "connections": [
+        "Y1:Y",
+        "Y2:A"
+      ],
+      "coupling": [],
+      "name": "agg2",
+      "resistance": 0.0,
+      "total_cap": 0.5
+    },
+    {
+      "connections": [
+        "Z1:Y",
+        "Z2:A"
+      ],
+      "coupling": [],
+      "name": "agg3",
+      "resistance": 0.0,
+      "total_cap": 0.5
+    },
+    {
+      "connections": [
+        "A:Y",
+        "B:A"
+      ],
+      "coupling": [
+        [
+          "agg1",
+          0.25
+        ],
+        [
+          "agg2",
+          0.18
+        ],
+        [
+          "agg3",
+          0.075
+        ]
+      ],
+      "name": "victim",
+      "resistance": 0.0,
+      "total_cap": 2.0
+    }
+  ]
+}

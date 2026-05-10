@@ -1,0 +1,90 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "u",
+      "shapes": [
+        {
+          "bottom": 0,
+          "datatype": 0,
+          "layer": 1,
+          "left": 0,
+          "right": 30,
+          "top": 10,
+          "type": "box"
+        }
+      ]
+    },
+    {
+      "instances": [
+        {
+          "sname": "u",
+          "trans": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "sname": "u",
+          "trans": [
+            1,
+            100,
+            0
+          ]
+        },
+        {
+          "sname": "u",
+          "trans": [
+            2,
+            200,
+            0
+          ]
+        },
+        {
+          "sname": "u",
+          "trans": [
+            3,
+            300,
+            0
+          ]
+        },
+        {
+          "sname": "u",
+          "trans": [
+            4,
+            400,
+            0
+          ]
+        },
+        {
+          "sname": "u",
+          "trans": [
+            5,
+            500,
+            0
+          ]
+        },
+        {
+          "sname": "u",
+          "trans": [
+            6,
+            600,
+            0
+          ]
+        },
+        {
+          "sname": "u",
+          "trans": [
+            7,
+            700,
+            0
+          ]
+        }
+      ],
+      "name": "eight",
+      "shapes": []
+    }
+  ],
+  "dbu_um": 0.001
+}

@@ -1,0 +1,19 @@
+[package]
+name = "klayout-pdk"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Typed PDK declarations (layers, ports) for klayout-rs via the pdk! macro"
+
+[dependencies]
+klayout-core = { path = "../klayout-core", version = "0.0.1" }
+smol_str = { workspace = true }
+
+[dev-dependencies]
+klayout-io = { path = "../klayout-io", version = "0.0.1" }
+
+[lints]
+workspace = true

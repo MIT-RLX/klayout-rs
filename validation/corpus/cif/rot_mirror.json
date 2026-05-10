@@ -1,0 +1,68 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "C2",
+      "shapes": [
+        {
+          "bottom": 0,
+          "datatype": 0,
+          "layer": 1,
+          "left": 0,
+          "right": 1000,
+          "top": 500,
+          "type": "box"
+        }
+      ]
+    },
+    {
+      "instances": [
+        {
+          "sname": "C2",
+          "trans": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "sname": "C2",
+          "trans": [
+            1,
+            2000,
+            0
+          ]
+        },
+        {
+          "sname": "C2",
+          "trans": [
+            2,
+            4000,
+            0
+          ]
+        },
+        {
+          "sname": "C2",
+          "trans": [
+            6,
+            6000,
+            0
+          ]
+        }
+      ],
+      "name": "C1",
+      "shapes": [
+        {
+          "bottom": 0,
+          "datatype": 0,
+          "layer": 2,
+          "left": 0,
+          "right": 500,
+          "top": 500,
+          "type": "box"
+        }
+      ]
+    }
+  ],
+  "dbu_um": 0.001
+}

@@ -1,0 +1,231 @@
+{
+  "layers": [
+    {
+      "name": "metal1",
+      "type": "ROUTING"
+    },
+    {
+      "name": "metal2",
+      "type": "ROUTING"
+    }
+  ],
+  "macros": [
+    {
+      "height_dbu": 1400,
+      "name": "BUF",
+      "pins": [
+        {
+          "direction": "INPUT",
+          "name": "A",
+          "ports": [
+            {
+              "layer": "metal1",
+              "xmax": 300,
+              "xmin": 100,
+              "ymax": 900,
+              "ymin": 500
+            }
+          ],
+          "use": "SIGNAL"
+        },
+        {
+          "direction": "OUTPUT",
+          "name": "Y",
+          "ports": [
+            {
+              "layer": "metal1",
+              "xmax": 1250,
+              "xmin": 1050,
+              "ymax": 900,
+              "ymin": 500
+            }
+          ],
+          "use": "SIGNAL"
+        }
+      ],
+      "width_dbu": 1380
+    },
+    {
+      "height_dbu": 1400,
+      "name": "DFF",
+      "pins": [
+        {
+          "direction": "INPUT",
+          "name": "CK",
+          "ports": [
+            {
+              "layer": "metal1",
+              "xmax": 750,
+              "xmin": 550,
+              "ymax": 900,
+              "ymin": 500
+            }
+          ],
+          "use": "CLOCK"
+        },
+        {
+          "direction": "INPUT",
+          "name": "D",
+          "ports": [
+            {
+              "layer": "metal1",
+              "xmax": 300,
+              "xmin": 100,
+              "ymax": 900,
+              "ymin": 500
+            }
+          ],
+          "use": "SIGNAL"
+        },
+        {
+          "direction": "OUTPUT",
+          "name": "Q",
+          "ports": [
+            {
+              "layer": "metal1",
+              "xmax": 3600,
+              "xmin": 3400,
+              "ymax": 900,
+              "ymin": 500
+            }
+          ],
+          "use": "SIGNAL"
+        }
+      ],
+      "width_dbu": 3680
+    },
+    {
+      "height_dbu": 1400,
+      "name": "INV",
+      "pins": [
+        {
+          "direction": "INPUT",
+          "name": "A",
+          "ports": [
+            {
+              "layer": "metal1",
+              "xmax": 300,
+              "xmin": 100,
+              "ymax": 900,
+              "ymin": 500
+            }
+          ],
+          "use": "SIGNAL"
+        },
+        {
+          "direction": "OUTPUT",
+          "name": "Y",
+          "ports": [
+            {
+              "layer": "metal1",
+              "xmax": 800,
+              "xmin": 600,
+              "ymax": 900,
+              "ymin": 500
+            }
+          ],
+          "use": "SIGNAL"
+        }
+      ],
+      "width_dbu": 920
+    },
+    {
+      "height_dbu": 1400,
+      "name": "NAND2",
+      "pins": [
+        {
+          "direction": "INPUT",
+          "name": "A",
+          "ports": [
+            {
+              "layer": "metal1",
+              "xmax": 300,
+              "xmin": 100,
+              "ymax": 900,
+              "ymin": 500
+            }
+          ],
+          "use": "SIGNAL"
+        },
+        {
+          "direction": "INPUT",
+          "name": "B",
+          "ports": [
+            {
+              "layer": "metal1",
+              "xmax": 750,
+              "xmin": 550,
+              "ymax": 900,
+              "ymin": 500
+            }
+          ],
+          "use": "SIGNAL"
+        },
+        {
+          "direction": "OUTPUT",
+          "name": "Y",
+          "ports": [
+            {
+              "layer": "metal1",
+              "xmax": 1750,
+              "xmin": 1550,
+              "ymax": 900,
+              "ymin": 500
+            }
+          ],
+          "use": "SIGNAL"
+        }
+      ],
+      "width_dbu": 1840
+    },
+    {
+      "height_dbu": 1400,
+      "name": "NOR2",
+      "pins": [
+        {
+          "direction": "INPUT",
+          "name": "A",
+          "ports": [
+            {
+              "layer": "metal2",
+              "xmax": 300,
+              "xmin": 100,
+              "ymax": 950,
+              "ymin": 450
+            }
+          ],
+          "use": "SIGNAL"
+        },
+        {
+          "direction": "INPUT",
+          "name": "B",
+          "ports": [
+            {
+              "layer": "metal2",
+              "xmax": 750,
+              "xmin": 550,
+              "ymax": 950,
+              "ymin": 450
+            }
+          ],
+          "use": "SIGNAL"
+        },
+        {
+          "direction": "OUTPUT",
+          "name": "Y",
+          "ports": [
+            {
+              "layer": "metal2",
+              "xmax": 1750,
+              "xmin": 1550,
+              "ymax": 950,
+              "ymin": 450
+            }
+          ],
+          "use": "SIGNAL"
+        }
+      ],
+      "width_dbu": 1840
+    }
+  ]
+}

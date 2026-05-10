@@ -1,0 +1,13 @@
+(hier with translated child);
+DS 2 1 1;
+L L1;
+B 50 50 25 25;
+DF;
+DS 1 1 1;
+L L2;
+B 100 100 50 50;
+C 2 T 200 200;
+C 2 T 400 0;
+DF;
+C 1;
+E

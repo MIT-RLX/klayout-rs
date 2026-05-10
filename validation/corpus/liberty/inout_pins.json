@@ -1,0 +1,20 @@
+{
+  "cells": [
+    {
+      "area": 5.0,
+      "name": "BIDIR",
+      "pins": [
+        {
+          "cap": 0.4,
+          "direction": "input",
+          "name": "EN"
+        },
+        {
+          "cap": 1.2,
+          "direction": "bidirect",
+          "name": "IO"
+        }
+      ]
+    }
+  ]
+}

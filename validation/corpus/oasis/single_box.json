@@ -1,0 +1,20 @@
+{
+  "dbu_um": 0.001,
+  "cells": [
+    {
+      "name": "BOX",
+      "shapes": [
+        {
+          "type": "box",
+          "layer": 1,
+          "datatype": 0,
+          "left": 0,
+          "bottom": 0,
+          "right": 100,
+          "top": 50
+        }
+      ],
+      "instances": []
+    }
+  ]
+}

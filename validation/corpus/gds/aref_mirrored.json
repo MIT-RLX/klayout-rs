@@ -1,0 +1,46 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "u",
+      "shapes": [
+        {
+          "bottom": 0,
+          "datatype": 0,
+          "layer": 1,
+          "left": 0,
+          "right": 10,
+          "top": 10,
+          "type": "box"
+        }
+      ]
+    },
+    {
+      "instances": [
+        {
+          "array": {
+            "a": [
+              20,
+              5
+            ],
+            "b": [
+              -3,
+              30
+            ],
+            "na": 2,
+            "nb": 2
+          },
+          "sname": "u",
+          "trans": [
+            2,
+            50,
+            50
+          ]
+        }
+      ],
+      "name": "mir_arr",
+      "shapes": []
+    }
+  ],
+  "dbu_um": 0.001
+}

@@ -1,0 +1,25 @@
+VERSION 5.7 ;
+DIVIDERCHAR "/" ;
+BUSBITCHARS "[]" ;
+DESIGN top ;
+UNITS DISTANCE MICRONS 1000 ;
+DIEAREA ( 0 0 ) ( 30000 5000 ) ;
+
+COMPONENTS 6 ;
+- G1 NAND2 + PLACED (  1000 1000 ) N ;
+- G2 NAND2 + PLACED (  4000 1000 ) N ;
+- G3 NOR2  + PLACED (  7000 1000 ) N ;
+- G4 NAND2 + PLACED ( 10000 1000 ) N ;
+- G5 INV   + PLACED ( 13000 1000 ) N ;
+- G6 BUF   + PLACED ( 14500 1000 ) N ;
+END COMPONENTS
+
+NETS 5 ;
+- w1 ( G1 Y ) ( G3 A ) ;
+- w2 ( G2 Y ) ( G3 B ) ;
+- w3 ( G3 Y ) ( G4 A ) ;
+- w4 ( G4 Y ) ( G5 A ) ;
+- w5 ( G5 Y ) ( G6 A ) ;
+END NETS
+
+END DESIGN

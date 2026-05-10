@@ -1,0 +1,87 @@
+{
+  "dbu_um": 0.001,
+  "cells": [
+    {
+      "name": "LEAFB",
+      "shapes": [
+        {
+          "type": "box",
+          "layer": 1,
+          "datatype": 0,
+          "left": 0,
+          "bottom": 0,
+          "right": 20,
+          "top": 5
+        }
+      ],
+      "instances": []
+    },
+    {
+      "name": "LEAFA",
+      "shapes": [
+        {
+          "type": "box",
+          "layer": 1,
+          "datatype": 0,
+          "left": 0,
+          "bottom": 0,
+          "right": 10,
+          "top": 10
+        }
+      ],
+      "instances": []
+    },
+    {
+      "name": "MID",
+      "shapes": [],
+      "instances": [
+        {
+          "sname": "LEAFA",
+          "trans": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "sname": "LEAFA",
+          "trans": [
+            0,
+            30,
+            0
+          ]
+        },
+        {
+          "sname": "LEAFB",
+          "trans": [
+            0,
+            0,
+            30
+          ]
+        }
+      ]
+    },
+    {
+      "name": "TOP_HIER",
+      "shapes": [],
+      "instances": [
+        {
+          "sname": "MID",
+          "trans": [
+            0,
+            0,
+            0
+          ]
+        },
+        {
+          "sname": "MID",
+          "trans": [
+            0,
+            100,
+            0
+          ]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,28 @@
+[package]
+name = "klayout-validate"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Differential validation of klayout-rs against the KLayout reference (klayout.db)"
+publish = false
+
+[dependencies]
+klayout-core = { path = "../../klayout-core", version = "0.0.1" }
+klayout-io = { path = "../../klayout-io", version = "0.0.1" }
+klayout-geom = { path = "../../klayout-geom", version = "0.0.1" }
+klayout-drc = { path = "../../klayout-drc", version = "0.0.1" }
+klayout-liberty = { path = "../../klayout-liberty", version = "0.0.1" }
+klayout-connect = { path = "../../klayout-connect", version = "0.0.1" }
+klayout-lef = { path = "../../klayout-lef", version = "0.0.1" }
+serde_json = { workspace = true }
+
+[dev-dependencies]
+serde = { workspace = true }
+smallvec = { workspace = true }
+tempfile = "3"
+
+[lints]
+workspace = true

@@ -1,0 +1,26 @@
+[package]
+name = "klayout-drc"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+authors.workspace = true
+repository.workspace = true
+description = "Geometric design-rule check primitives for klayout-rs"
+
+[dependencies]
+klayout-core = { path = "../klayout-core", version = "0.0.1" }
+klayout-geom = { path = "../klayout-geom", version = "0.0.1" }
+klayout-spatial = { path = "../klayout-spatial", version = "0.0.1" }
+rayon = { workspace = true }
+smol_str = { workspace = true }
+
+[dev-dependencies]
+criterion = { workspace = true }
+
+[lints]
+workspace = true
+
+[[bench]]
+name = "width"
+harness = false

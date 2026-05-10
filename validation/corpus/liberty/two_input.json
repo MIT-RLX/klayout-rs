@@ -1,0 +1,46 @@
+{
+  "cells": [
+    {
+      "area": 1.5,
+      "name": "NAND2",
+      "pins": [
+        {
+          "cap": 0.4,
+          "direction": "input",
+          "name": "A"
+        },
+        {
+          "cap": 0.45,
+          "direction": "input",
+          "name": "B"
+        },
+        {
+          "cap": 0.0,
+          "direction": "output",
+          "name": "Y"
+        }
+      ]
+    },
+    {
+      "area": 1.6,
+      "name": "NOR2",
+      "pins": [
+        {
+          "cap": 0.35,
+          "direction": "input",
+          "name": "A"
+        },
+        {
+          "cap": 0.42,
+          "direction": "input",
+          "name": "B"
+        },
+        {
+          "cap": 0.0,
+          "direction": "output",
+          "name": "Y"
+        }
+      ]
+    }
+  ]
+}

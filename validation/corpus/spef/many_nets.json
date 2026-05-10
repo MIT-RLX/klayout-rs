@@ -1,0 +1,56 @@
+{
+  "design": "many",
+  "nets": [
+    {
+      "connections": [
+        "U1:Y",
+        "U2:A"
+      ],
+      "coupling": [],
+      "name": "n1",
+      "resistance": 0.0,
+      "total_cap": 0.5
+    },
+    {
+      "connections": [
+        "U2:Y",
+        "U3:A"
+      ],
+      "coupling": [],
+      "name": "n2",
+      "resistance": 0.0,
+      "total_cap": 0.75
+    },
+    {
+      "connections": [
+        "U3:Y",
+        "U4:A",
+        "U5:A"
+      ],
+      "coupling": [],
+      "name": "n3",
+      "resistance": 0.0,
+      "total_cap": 1.25
+    },
+    {
+      "connections": [
+        "U4:Y",
+        "U6:A"
+      ],
+      "coupling": [],
+      "name": "n4",
+      "resistance": 0.0,
+      "total_cap": 0.42
+    },
+    {
+      "connections": [
+        "U5:Y",
+        "U6:B"
+      ],
+      "coupling": [],
+      "name": "n5",
+      "resistance": 0.0,
+      "total_cap": 1.1
+    }
+  ]
+}

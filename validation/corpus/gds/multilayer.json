@@ -1,0 +1,56 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "multilayer",
+      "shapes": [
+        {
+          "bottom": 0,
+          "datatype": 0,
+          "layer": 1,
+          "left": 0,
+          "right": 10,
+          "top": 10,
+          "type": "box"
+        },
+        {
+          "bottom": 0,
+          "datatype": 0,
+          "layer": 2,
+          "left": 20,
+          "right": 30,
+          "top": 10,
+          "type": "box"
+        },
+        {
+          "bottom": 0,
+          "datatype": 1,
+          "layer": 2,
+          "left": 40,
+          "right": 50,
+          "top": 10,
+          "type": "box"
+        },
+        {
+          "bottom": 0,
+          "datatype": 0,
+          "layer": 3,
+          "left": 60,
+          "right": 70,
+          "top": 10,
+          "type": "box"
+        },
+        {
+          "bottom": 0,
+          "datatype": 5,
+          "layer": 10,
+          "left": 80,
+          "right": 90,
+          "top": 10,
+          "type": "box"
+        }
+      ]
+    }
+  ],
+  "dbu_um": 0.001
+}

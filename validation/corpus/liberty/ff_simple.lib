@@ -1,0 +1,8 @@
+library(tff) {
+  cell(DFF) {
+    area : 4.0;
+    pin(D)  { direction : input; capacitance : 0.30; }
+    pin(CK) { direction : input; capacitance : 0.50; clock : true; }
+    pin(Q)  { direction : output; }
+  }
+}

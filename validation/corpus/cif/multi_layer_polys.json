@@ -1,0 +1,73 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "C1",
+      "shapes": [
+        {
+          "bottom": 0,
+          "datatype": 0,
+          "layer": 1,
+          "left": 0,
+          "right": 500,
+          "top": 500,
+          "type": "box"
+        },
+        {
+          "datatype": 0,
+          "holes": [],
+          "hull": [
+            [
+              1000,
+              0
+            ],
+            [
+              1500,
+              1000
+            ],
+            [
+              2000,
+              0
+            ]
+          ],
+          "layer": 1,
+          "type": "polygon"
+        },
+        {
+          "bottom": 100,
+          "datatype": 0,
+          "layer": 3,
+          "left": 2350,
+          "right": 2650,
+          "top": 400,
+          "type": "box"
+        },
+        {
+          "datatype": 0,
+          "holes": [],
+          "hull": [
+            [
+              3000,
+              0
+            ],
+            [
+              3000,
+              1000
+            ],
+            [
+              4000,
+              1000
+            ],
+            [
+              4000,
+              0
+            ]
+          ],
+          "layer": 7,
+          "type": "polygon"
+        }
+      ]
+    }
+  ],
+  "dbu_um": 0.001
+}

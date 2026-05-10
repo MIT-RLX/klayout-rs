@@ -1,0 +1,46 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "u",
+      "shapes": [
+        {
+          "bottom": 0,
+          "datatype": 0,
+          "layer": 1,
+          "left": 0,
+          "right": 10,
+          "top": 10,
+          "type": "box"
+        }
+      ]
+    },
+    {
+      "instances": [
+        {
+          "array": {
+            "a": [
+              -15,
+              0
+            ],
+            "b": [
+              0,
+              25
+            ],
+            "na": 3,
+            "nb": 2
+          },
+          "sname": "u",
+          "trans": [
+            1,
+            130,
+            200
+          ]
+        }
+      ],
+      "name": "rot_arr",
+      "shapes": []
+    }
+  ],
+  "dbu_um": 0.001
+}

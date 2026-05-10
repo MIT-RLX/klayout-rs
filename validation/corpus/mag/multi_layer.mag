@@ -1,0 +1,11 @@
+magic
+tech scmos
+timestamp 0
+<< metal1 >>
+rect 0 0 50 50
+rect 100 0 200 50
+<< metal2 >>
+rect 25 100 75 200
+<< poly >>
+rect 0 300 30 330
+<< end >>

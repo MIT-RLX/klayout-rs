@@ -1,0 +1,51 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "mixed",
+      "shapes": [
+        {
+          "bottom": 0,
+          "datatype": 0,
+          "layer": 1,
+          "left": 0,
+          "right": 100,
+          "top": 50,
+          "type": "box"
+        },
+        {
+          "begin_ext": 0,
+          "datatype": 0,
+          "end_ext": 0,
+          "layer": 2,
+          "points": [
+            [
+              0,
+              0
+            ],
+            [
+              50,
+              0
+            ],
+            [
+              50,
+              50
+            ]
+          ],
+          "round": false,
+          "type": "path",
+          "width": 10
+        },
+        {
+          "datatype": 0,
+          "layer": 99,
+          "string": "HELLO",
+          "type": "text",
+          "x": 25,
+          "y": 25
+        }
+      ]
+    }
+  ],
+  "dbu_um": 0.001
+}

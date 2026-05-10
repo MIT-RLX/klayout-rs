@@ -1,0 +1,7 @@
+# Seeds for failure cases proptest has generated in the past. It is
+# automatically read and these particular cases re-run before any
+# novel cases are generated.
+#
+# It is recommended to check this file in to source control so that
+# everyone who runs the test benefits from these saved cases.
+cc 75ce7568198d33705993d73ccd09c86f589ec88b92c2cb5fdf736dafccd5e5b2 # shrinks to p = Polygon { hull: [Point { x: 0, y: -350928468 }, Point { x: 0, y: 408321657 }, Point { x: 1, y: 408321657 }, Point { x: 1, y: -350928468 }], holes: [] }

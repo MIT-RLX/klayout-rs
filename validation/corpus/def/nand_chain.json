@@ -1,0 +1,90 @@
+{
+  "bpins": [],
+  "design": "top",
+  "die": [
+    0,
+    0,
+    30000,
+    5000
+  ],
+  "instances": [
+    {
+      "master": "NAND2",
+      "name": "G1",
+      "x_dbu": 1000,
+      "y_dbu": 1000
+    },
+    {
+      "master": "NAND2",
+      "name": "G2",
+      "x_dbu": 4000,
+      "y_dbu": 1000
+    },
+    {
+      "master": "NOR2",
+      "name": "G3",
+      "x_dbu": 7000,
+      "y_dbu": 1000
+    },
+    {
+      "master": "NAND2",
+      "name": "G4",
+      "x_dbu": 10000,
+      "y_dbu": 1000
+    },
+    {
+      "master": "INV",
+      "name": "G5",
+      "x_dbu": 13000,
+      "y_dbu": 1000
+    },
+    {
+      "master": "BUF",
+      "name": "G6",
+      "x_dbu": 14500,
+      "y_dbu": 1000
+    }
+  ],
+  "nets": [
+    {
+      "connections": [
+        "G1:Y",
+        "G3:A"
+      ],
+      "name": "w1",
+      "wires": []
+    },
+    {
+      "connections": [
+        "G2:Y",
+        "G3:B"
+      ],
+      "name": "w2",
+      "wires": []
+    },
+    {
+      "connections": [
+        "G3:Y",
+        "G4:A"
+      ],
+      "name": "w3",
+      "wires": []
+    },
+    {
+      "connections": [
+        "G4:Y",
+        "G5:A"
+      ],
+      "name": "w4",
+      "wires": []
+    },
+    {
+      "connections": [
+        "G5:Y",
+        "G6:A"
+      ],
+      "name": "w5",
+      "wires": []
+    }
+  ]
+}
