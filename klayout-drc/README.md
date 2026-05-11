@@ -18,7 +18,7 @@ expressible via `klayout-geom` boolean and sizing ops.
 | `enclosing` | Find inner-layer pieces not enclosed by ≥ `min` of outer. |
 | `overlap` | Find overlap regions narrower than `min`. |
 | `area_min` | Find polygons with area below `min`. |
-| `density` | Per-window density check. |
+| `density_window` | KLayout `without_density` / `with_density`: `padding_zero` / `padding_ignore`, `tile_boundary`, `tile_origin`, `tile_count`, `DensityWindowOutput`, merged result |
 | `density_fill` | Insert filler tiles to satisfy a density floor. |
 
 ## Performance

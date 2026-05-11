@@ -9,6 +9,10 @@ Usage:
 
 Determinism: random cases use a fixed seed so the corpus diff is meaningful
 when KLayout's behavior changes (which would be the only reason to regenerate).
+
+Corpus output directory defaults to ``validation/corpus/``. Override with
+``ORACLE_CORPUS_DIR=/abs/path`` (used by the pinned-KLayout Docker image to
+write into a temp mount).
 """
 from __future__ import annotations
 
@@ -20,7 +24,9 @@ from pathlib import Path
 
 import klayout.db as db
 
-CORPUS = Path(__file__).resolve().parent / "corpus"
+# Override for Docker / temp-dir oracle runs: `ORACLE_CORPUS_DIR=/out oracle.py drc`
+_CORPUS_DEFAULT = Path(__file__).resolve().parent / "corpus"
+CORPUS = Path(os.environ.get("ORACLE_CORPUS_DIR", str(_CORPUS_DEFAULT))).resolve()
 SEED = 0xC0FFEE
 N_RANDOM = 500
 
@@ -622,14 +628,130 @@ def gen_region() -> dict:
     }
 
 
+def density_window_violations(
+    region: db.Region,
+    win_w: int,
+    win_h: int,
+    step_x: int,
+    step_y: int,
+    dmin: float,
+    dmax: float,
+    *,
+    padding: str = "zero",
+    boundary_rects: list | None = None,
+    tile_origin: tuple[int, int] | None = None,
+    tile_count: tuple[int, int] | None = None,
+    explicit_frame: bool = True,
+    inverse: bool = False,
+) -> db.Region:
+    """Reference for ``density_window``: KLayout DRC ``without_density`` / ``with_density``.
+
+    Uses ``TilingProcessor`` like KLayout DRC. ``inverse=False`` (default) matches
+    ``without_density`` (emit tiles **outside** the density band). ``inverse=True``
+    matches ``with_density`` (emit tiles **inside** the band).
+
+    ``explicit_frame``: when True, sets ``tp.frame`` to the union of layer + boundary
+    bbox so 1×1 grids still get ``_tile`` (common for deck-level checks). When False,
+    matches bare Ruby without ``frame`` — singleton tile plans produce no output.
+    """
+    region.merge()
+    if region.is_empty():
+        return db.Region()
+
+    tp = db.TilingProcessor()
+    tp.dbu = 1.0
+    tp.scale_to_dbu = False
+
+    bb_layer = region.bbox()
+    boundary = db.Region()
+    if boundary_rects:
+        for x0, y0, x1, y1 in boundary_rects:
+            boundary.insert(db.Box(x0, y0, x1, y1))
+        boundary.merge()
+    else:
+        boundary.insert(db.Box(bb_layer.left, bb_layer.bottom, bb_layer.right, bb_layer.top))
+
+    bb_b = boundary.bbox()
+    union = db.DBox(
+        min(bb_layer.left, bb_b.left),
+        min(bb_layer.bottom, bb_b.bottom),
+        max(bb_layer.right, bb_b.right),
+        max(bb_layer.top, bb_b.top),
+    )
+
+    if explicit_frame:
+        tp.frame = db.DBox(float(union.left), float(union.bottom), float(union.right), float(union.top))
+
+    res = db.Region()
+    tp.input("input", region)
+    tp.input("boundary", boundary)
+    tp.tile_size(float(step_x), float(step_y))
+    xb = 0.5 * (float(win_w) - float(step_x))
+    yb = 0.5 * (float(win_h) - float(step_y))
+    if xb < 0:
+        xb = 0.0
+    if yb < 0:
+        yb = 0.0
+    tp.tile_border(xb, yb)
+    tp.var("vmin", float(dmin))
+    tp.var("vmax", float(dmax))
+    tp.var("xoverlap", xb / tp.dbu)
+    tp.var("yoverlap", yb / tp.dbu)
+    if tile_origin is not None:
+        tp.tile_origin(float(tile_origin[0]), float(tile_origin[1]))
+    if tile_count is not None:
+        tp.tiles(int(tile_count[0]), int(tile_count[1]))
+    tp.output("res", res)
+
+    if inverse:
+        in_band_test = "((d > vmin - 1e-10 && d < vmax + 1e-10) == true)"
+    else:
+        in_band_test = "((d > vmin - 1e-10 && d < vmax + 1e-10) != true)"
+
+    if padding == "zero":
+        tp.queue(
+            f"""
+_tile && (
+  var bx = _tile.bbox.enlarged(xoverlap, yoverlap);
+  var d = to_f(input.area(bx)) / to_f(bx.area);
+  {in_band_test} && _output(res, bx, false)
+)
+"""
+        )
+    elif padding == "ignore":
+        tp.queue(
+            f"""
+_tile && (
+  var bx = _tile.bbox.enlarged(xoverlap, yoverlap);
+  var ba = boundary.area(bx);
+  ba > 0 && (
+    var d = to_f(input.area(bx)) / to_f(ba);
+    {in_band_test} && _output(res, bx, false)
+  )
+)
+"""
+        )
+    else:
+        raise ValueError(f"unknown padding {padding!r}")
+
+    tp.execute("density_window_ref")
+    return res
+
+
 # ---------- DRC corpus ----------
+
 
 def gen_drc() -> dict:
     """DRC validation corpus. `width`, `space`, and `separation` use exact
     edge-pair analysis on our side and match KLayout's output for any
-    axis-aligned input. `enclosing` and `overlap` are deliberately omitted
-    here — they're shrink-based approximations that flag the right pairs
-    but generate different violation polygons."""
+    axis-aligned input. `density_window` matches KLayout DRC
+    ``without_density`` / ``with_density`` (``TilingProcessor``): ``padding_zero``,
+    ``padding_ignore``, ``tile_boundary``, ``tile_origin``, ``tile_count``, and
+    singleton-tile semantics via ``evaluate_singleton_tiles`` / explicit frame, and
+    ``with_density`` (corpus ``density_output: "inside"``) combined with those knobs.
+    `enclosing` and `overlap` use shrink-based approximations on our side; the corpus
+    still records KLayout ``enclosing_check`` / ``overlap_check`` polygons
+    and asserts we match on these fixtures."""
     cases = []
 
     def make_region(rects):
@@ -735,6 +857,293 @@ def gen_drc() -> dict:
             "min": m,
             "result": dump_region(a.overlap_check(b, m).polygons()),
         })
+
+    # ----- density_window (KLayout without_density / TilingProcessor) -----
+    def density_case(
+        name: str,
+        rects,
+        win: tuple,
+        step: tuple,
+        dmin: float,
+        dmax: float,
+        *,
+        padding: str = "zero",
+        boundary_rects: list | None = None,
+        tile_origin: tuple | None = None,
+        tile_count: tuple | None = None,
+        evaluate_singleton_tiles: bool = True,
+        density_output: str = "outside",
+    ):
+        inverse = density_output == "inside"
+        r = make_region(rects)
+        viol = density_window_violations(
+            r,
+            win[0],
+            win[1],
+            step[0],
+            step[1],
+            dmin,
+            dmax,
+            padding=padding,
+            boundary_rects=boundary_rects,
+            tile_origin=tile_origin,
+            tile_count=tile_count,
+            explicit_frame=evaluate_singleton_tiles,
+            inverse=inverse,
+        )
+        entry = {
+            "rule": "density_window",
+            "name": name,
+            "rects_a": [list(t) for t in rects],
+            "rects_b": [],
+            "min": 0,
+            "window": [win[0], win[1]],
+            "step": [step[0], step[1]],
+            "density_min": dmin,
+            "density_max": dmax,
+            "density_padding": padding,
+            "evaluate_singleton_tiles": evaluate_singleton_tiles,
+            "result": dump_region(viol),
+        }
+        if density_output != "outside":
+            entry["density_output"] = density_output
+        if boundary_rects is not None:
+            entry["boundary_rects"] = [list(t) for t in boundary_rects]
+        if tile_origin is not None:
+            entry["tile_origin"] = [tile_origin[0], tile_origin[1]]
+        if tile_count is not None:
+            entry["tile_count"] = [tile_count[0], tile_count[1]]
+        cases.append(entry)
+
+    density_case("passes_in_range", [(0, 0, 50, 50)], (100, 100), (100, 100), 0.20, 0.30)
+    density_case(
+        "with_density_in_band_emits_window",
+        [(0, 0, 50, 50)],
+        (100, 100),
+        (100, 100),
+        0.20,
+        0.30,
+        density_output="inside",
+    )
+    # `with_density` + same knobs as other fixtures (KLayout `inverse` / TilingProcessor).
+    density_case(
+        "with_density_tile_origin_corner",
+        [(0, 0, 30, 30)],
+        (100, 100),
+        (100, 100),
+        0.05,
+        0.15,
+        tile_origin=(0, 0),
+        density_output="inside",
+    )
+    density_case(
+        "with_density_padding_ignore_strip",
+        [(0, 0, 50, 10)],
+        (100, 100),
+        (100, 100),
+        0.45,
+        0.55,
+        padding="ignore",
+        boundary_rects=[(0, 0, 200, 10)],
+        density_output="inside",
+    )
+    density_case(
+        "with_density_tile_count_fixed",
+        [(0, 0, 250, 10)],
+        (100, 100),
+        (100, 100),
+        0.3,
+        0.7,
+        tile_count=(3, 1),
+        density_output="inside",
+    )
+    density_case(
+        "with_density_strict_singleton_no_output",
+        [(0, 0, 10, 10)],
+        (100, 100),
+        (100, 100),
+        0.3,
+        0.7,
+        evaluate_singleton_tiles=False,
+        density_output="inside",
+    )
+    density_case(
+        "with_density_window_larger_than_step",
+        [(0, 0, 40, 40)],
+        (120, 120),
+        (100, 100),
+        0.10,
+        0.20,
+        density_output="inside",
+    )
+    density_case(
+        "with_density_sliding_multi_tile",
+        [(0, 0, 90, 90), (500, 0, 510, 10)],
+        (100, 100),
+        (100, 100),
+        0.30,
+        0.70,
+        density_output="inside",
+    )
+    density_case("flags_below_minimum", [(0, 0, 10, 10)], (100, 100), (100, 100), 0.30, 0.70)
+    density_case("flags_above_maximum", [(0, 0, 90, 90)], (100, 100), (100, 100), 0.30, 0.70)
+    density_case(
+        "sliding_multi_tile",
+        [(0, 0, 90, 90), (500, 0, 510, 10)],
+        (100, 100),
+        (100, 100),
+        0.30,
+        0.70,
+    )
+    density_case(
+        "window_larger_than_step",
+        [(0, 0, 40, 40)],
+        (120, 120),
+        (100, 100),
+        0.10,
+        0.20,
+    )
+    density_case(
+        "padding_ignore_strip",
+        [(0, 0, 50, 10)],
+        (100, 100),
+        (100, 100),
+        0.45,
+        0.55,
+        padding="ignore",
+        boundary_rects=[(0, 0, 200, 10)],
+    )
+    density_case(
+        "tile_origin_corner",
+        [(0, 0, 30, 30)],
+        (100, 100),
+        (100, 100),
+        0.05,
+        0.15,
+        tile_origin=(0, 0),
+    )
+    density_case(
+        "tile_count_fixed",
+        [(0, 0, 250, 10)],
+        (100, 100),
+        (100, 100),
+        0.3,
+        0.7,
+        tile_count=(3, 1),
+    )
+    density_case(
+        "strict_singleton_no_output",
+        [(0, 0, 10, 10)],
+        (100, 100),
+        (100, 100),
+        0.3,
+        0.7,
+        evaluate_singleton_tiles=False,
+    )
+
+    return {
+        "klayout_version": db.__version__ if hasattr(db, "__version__") else "unknown",
+        "cases": cases,
+    }
+
+
+def gen_drc_density_grid() -> dict:
+    """Bounded Cartesian product: every case is KLayout ``TilingProcessor`` output.
+
+    Covers discrete combinations of padding, ``with_density`` / ``without_density``
+    (``density_output``), singleton ``tp.frame`` behavior, ``tile_origin``,
+    ``tile_count``, window/step pairs, and a small geometry set — not the
+    continuous (coord, float) space, but the full *knob* surface of our port.
+    Regenerate with: ``python validation/oracle.py drc_density_grid``.
+    """
+
+    def make_region(rects):
+        r = db.Region()
+        for x0, y0, x1, y1 in rects:
+            r.insert(db.Box(x0, y0, x1, y1))
+        return r
+
+    geometries = [
+        ("sq50", [(0, 0, 50, 50)], None),
+        ("sq10", [(0, 0, 10, 10)], None),
+        ("dual", [(0, 0, 90, 90), (500, 0, 510, 10)], None),
+        ("strip", [(0, 0, 50, 10)], [(0, 0, 200, 10)]),
+    ]
+    win_steps = [
+        ((100, 100), (100, 100)),
+        ((100, 100), (50, 50)),
+        ((120, 120), (100, 100)),
+        ((100, 100), (100, 50)),
+        ((80, 80), (80, 80)),
+        ((100, 120), (100, 100)),
+    ]
+    density_pairs = ((0.2, 0.3), (0.3, 0.7))
+    cases = []
+    idx = 0
+
+    for _gid, rects, opt_boundary in geometries:
+        for win, step in win_steps:
+            if win[0] < step[0] or win[1] < step[1]:
+                continue
+            for padding in ("zero", "ignore"):
+                for density_output in ("outside", "inside"):
+                    for evaluate_singleton_tiles in (True, False):
+                        for tile_origin in (None, (0, 0)):
+                            for tile_count in (None, (3, 1)):
+                                for dmin, dmax in density_pairs:
+                                    boundary_rects = None
+                                    if padding == "ignore" and opt_boundary is not None:
+                                        boundary_rects = opt_boundary
+                                    inverse = density_output == "inside"
+                                    r = make_region(rects)
+                                    viol = density_window_violations(
+                                        r,
+                                        win[0],
+                                        win[1],
+                                        step[0],
+                                        step[1],
+                                        dmin,
+                                        dmax,
+                                        padding=padding,
+                                        boundary_rects=boundary_rects,
+                                        tile_origin=tile_origin,
+                                        tile_count=tile_count,
+                                        explicit_frame=evaluate_singleton_tiles,
+                                        inverse=inverse,
+                                    )
+                                    name = f"dg_{idx:05d}"
+                                    entry = {
+                                        "rule": "density_window",
+                                        "name": name,
+                                        "rects_a": [list(t) for t in rects],
+                                        "rects_b": [],
+                                        "min": 0,
+                                        "window": [win[0], win[1]],
+                                        "step": [step[0], step[1]],
+                                        "density_min": dmin,
+                                        "density_max": dmax,
+                                        "density_padding": padding,
+                                        "evaluate_singleton_tiles": evaluate_singleton_tiles,
+                                        "result": dump_region(viol),
+                                    }
+                                    if density_output != "outside":
+                                        entry["density_output"] = density_output
+                                    if boundary_rects is not None:
+                                        entry["boundary_rects"] = [
+                                            list(t) for t in boundary_rects
+                                        ]
+                                    if tile_origin is not None:
+                                        entry["tile_origin"] = [
+                                            tile_origin[0],
+                                            tile_origin[1],
+                                        ]
+                                    if tile_count is not None:
+                                        entry["tile_count"] = [
+                                            tile_count[0],
+                                            tile_count[1],
+                                        ]
+                                    cases.append(entry)
+                                    idx += 1
 
     return {
         "klayout_version": db.__version__ if hasattr(db, "__version__") else "unknown",
@@ -1116,6 +1525,10 @@ def main():
         elif t == "drc":
             (CORPUS / "drc.json").write_text(json.dumps(gen_drc(), indent=2))
             print("wrote drc.json")
+        elif t == "drc_density_grid":
+            grid = gen_drc_density_grid()
+            (CORPUS / "drc_density_grid.json").write_text(json.dumps(grid, indent=2))
+            print(f"wrote drc_density_grid.json ({len(grid['cases'])} cases)")
         elif t == "polygon_ops":
             (CORPUS / "polygon_ops.json").write_text(
                 json.dumps(gen_polygon_ops(), indent=2)

@@ -8,6 +8,7 @@
 
 use klayout_core::{Bbox, LayerIndex, Point};
 use smol_str::SmolStr;
+use std::collections::HashMap;
 
 // ====================================================================
 // LEF: layer / via / site metadata
@@ -175,6 +176,22 @@ pub struct LefLibrary {
     pub vias: Vec<ViaSpec>,
     pub sites: Vec<SiteSpec>,
     pub macros: Vec<MacroSpec>,
+}
+
+impl LefLibrary {
+    /// LEF `LAYER … WIDTH <µm>` as default routing width in DBU for NETS segments
+    /// that omit an explicit width (matches KLayout / LEFDEF 5.8 default width).
+    pub fn routing_width_dbu(&self, dbu_per_micron: i64) -> HashMap<SmolStr, i64> {
+        let scale = dbu_per_micron as f64;
+        let mut m = HashMap::new();
+        for layer in &self.layers {
+            if let Some(w_um) = layer.width {
+                let dbu = (w_um * scale).round() as i64;
+                m.insert(layer.name.clone(), dbu);
+            }
+        }
+        m
+    }
 }
 
 // ====================================================================

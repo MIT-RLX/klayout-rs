@@ -615,6 +615,8 @@ version = "0.0.1"
 dependencies = [
  "klayout-core",
  "rstar",
+ "serde",
+ "serde_json",
  "smol_str",
 ]
 
@@ -733,6 +735,7 @@ version = "0.0.1"
 dependencies = [
  "klayout-connect",
  "klayout-core",
+ "klayout-cts",
  "klayout-drc",
  "klayout-geom",
  "klayout-io",
@@ -741,6 +744,7 @@ dependencies = [
  "serde",
  "serde_json",
  "smallvec",
+ "smol_str",
  "tempfile",
 ]
 

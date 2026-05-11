@@ -1,0 +1,75 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "INV",
+      "shapes": [
+        {
+          "bottom": 0,
+          "layer_base": "OUTLINE",
+          "left": 0,
+          "right": 920,
+          "top": 1400,
+          "type": "box"
+        },
+        {
+          "bottom": 500,
+          "layer_base": "metal1",
+          "left": 100,
+          "right": 300,
+          "top": 900,
+          "type": "box"
+        },
+        {
+          "bottom": 500,
+          "layer_base": "metal1",
+          "left": 600,
+          "right": 800,
+          "top": 900,
+          "type": "box"
+        }
+      ]
+    },
+    {
+      "instances": [
+        {
+          "sname": "INV",
+          "trans": [
+            0,
+            1000,
+            1000
+          ]
+        },
+        {
+          "sname": "INV",
+          "trans": [
+            0,
+            3000,
+            1000
+          ]
+        },
+        {
+          "sname": "INV",
+          "trans": [
+            0,
+            5000,
+            1000
+          ]
+        }
+      ],
+      "name": "top",
+      "shapes": [
+        {
+          "bottom": 0,
+          "layer_base": "OUTLINE",
+          "left": 0,
+          "right": 10000,
+          "top": 10000,
+          "type": "box"
+        }
+      ]
+    }
+  ],
+  "dbu_um": 0.001,
+  "klayout_db_version": "0.30.8"
+}

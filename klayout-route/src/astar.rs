@@ -9,8 +9,13 @@
 //!
 //! Returns a centerline `Path` matching the [`Planner`] trait. Falls back
 //! to one-bend manhattan if A* finds no route.
+//!
+//! For obstacle-critical callers (PNR), use [`AStarPlanner::plan_or_none`] /
+//! [`AStarPlanner::plan_congested_or_none`] so routing fails closed instead of
+//! silently using obstacle-ignorant Manhattan.
 
-use crate::planner::{Obstacles, Planner};
+use crate::congestion::FractionalCongestionGrid;
+use crate::planner::{ManhattanPlanner, Obstacles, Planner};
 use klayout_core::{Bbox, Path as CorePath, PathCap, Point, Port};
 use smallvec::SmallVec;
 use std::collections::BinaryHeap;
@@ -50,37 +55,86 @@ impl AStarPlanner {
         self.bend_penalty = penalty.max(0);
         self
     }
+
+    /// Obstacle-aware planning without the obstacle-ignorant [`Planner`]
+    /// fallback. Use from routers that must not short through blockages when
+    /// the grid search fails.
+    pub fn plan_or_none(&self, src: &Port, dst: &Port, env: &Obstacles) -> Option<CorePath> {
+        let pts = astar(src.center, dst.center, env, self, None, 0)?;
+        let width = src.width.max(dst.width);
+        Some(CorePath {
+            points: compress_polyline(&pts),
+            width,
+            begin_ext: 0,
+            end_ext: 0,
+            cap: PathCap::Flat,
+        })
+    }
+
+    /// Congestion-weighted variant of [`Self::plan_or_none`].
+    pub fn plan_congested_or_none(
+        &self,
+        src: &Port,
+        dst: &Port,
+        env: &Obstacles,
+        congestion: Option<&FractionalCongestionGrid>,
+        congestion_weight: i64,
+    ) -> Option<CorePath> {
+        let pts = astar(
+            src.center,
+            dst.center,
+            env,
+            self,
+            congestion,
+            congestion_weight,
+        )?;
+        let width = src.width.max(dst.width);
+        Some(CorePath {
+            points: compress_polyline(&pts),
+            width,
+            begin_ext: 0,
+            end_ext: 0,
+            cap: PathCap::Flat,
+        })
+    }
+
+    /// Same as [`Planner::plan`] but adds `congestion_weight ×
+    /// grid.lookup_world(unsnap(neighbor))` to each grid move (integer-rounded).
+    pub fn plan_congested(
+        &self,
+        src: &Port,
+        dst: &Port,
+        env: &Obstacles,
+        congestion: Option<&FractionalCongestionGrid>,
+        congestion_weight: i64,
+    ) -> CorePath {
+        self.plan_congested_or_none(src, dst, env, congestion, congestion_weight)
+            .unwrap_or_else(|| ManhattanPlanner.plan(src, dst, env))
+    }
 }
 
 impl Planner for AStarPlanner {
     fn plan(&self, src: &Port, dst: &Port, env: &Obstacles) -> CorePath {
-        if let Some(pts) = astar(src.center, dst.center, env, self) {
-            let mut compressed: SmallVec<[Point; 4]> = SmallVec::new();
-            // Compress collinear runs so the result has only the bend points.
-            for p in &pts {
-                if compressed.len() >= 2 {
-                    let a = compressed[compressed.len() - 2];
-                    let b = compressed[compressed.len() - 1];
-                    if collinear(a, b, *p) {
-                        let last_idx = compressed.len() - 1;
-                        compressed[last_idx] = *p;
-                        continue;
-                    }
-                }
-                compressed.push(*p);
-            }
-            let width = src.width.max(dst.width);
-            return CorePath {
-                points: compressed,
-                width,
-                begin_ext: 0,
-                end_ext: 0,
-                cap: PathCap::Flat,
-            };
-        }
-        // Fallback: one-bend manhattan
-        crate::planner::ManhattanPlanner.plan(src, dst, env)
+        self.plan_or_none(src, dst, env)
+            .unwrap_or_else(|| ManhattanPlanner.plan(src, dst, env))
     }
+}
+
+fn compress_polyline(pts: &[Point]) -> SmallVec<[Point; 4]> {
+    let mut compressed: SmallVec<[Point; 4]> = SmallVec::new();
+    for p in pts {
+        if compressed.len() >= 2 {
+            let a = compressed[compressed.len() - 2];
+            let b = compressed[compressed.len() - 1];
+            if collinear(a, b, *p) {
+                let last_idx = compressed.len() - 1;
+                compressed[last_idx] = *p;
+                continue;
+            }
+        }
+        compressed.push(*p);
+    }
+    compressed
 }
 
 fn collinear(a: Point, b: Point, c: Point) -> bool {
@@ -108,7 +162,14 @@ impl PartialOrd for Node {
     }
 }
 
-fn astar(src: Point, dst: Point, env: &Obstacles, cfg: &AStarPlanner) -> Option<Vec<Point>> {
+fn astar(
+    src: Point,
+    dst: Point,
+    env: &Obstacles,
+    cfg: &AStarPlanner,
+    congestion: Option<&FractionalCongestionGrid>,
+    congestion_weight: i64,
+) -> Option<Vec<Point>> {
     let bbox = Bbox::new(src, dst);
     let bbox_norm = Bbox::new(
         Point::new(
@@ -194,7 +255,14 @@ fn astar(src: Point, dst: Point, env: &Obstacles, cfg: &AStarPlanner) -> Option<
             } else {
                 0
             };
-            let tentative_g = cur.g + 1 + bend;
+            let soft = congestion
+                .map(|cg| {
+                    let p = unsnap(n_pos);
+                    let d = cg.lookup_world(p);
+                    (congestion_weight as f64 * d as f64).round() as i64
+                })
+                .unwrap_or(0);
+            let tentative_g = cur.g + 1 + bend + soft;
             let prev = g_score.get(&n_pos).copied().unwrap_or(i64::MAX);
             if tentative_g < prev {
                 g_score.insert(n_pos, tentative_g);
@@ -210,7 +278,7 @@ fn astar(src: Point, dst: Point, env: &Obstacles, cfg: &AStarPlanner) -> Option<
 
         // Bail-out: very large search space. For obstacle-free cases the
         // expansion is bounded; pathological obstacles can blow this up.
-        if g_score.len() > 1_000_000 {
+        if g_score.len() > 12_000_000 {
             return None;
         }
     }

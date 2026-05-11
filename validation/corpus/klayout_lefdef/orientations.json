@@ -1,0 +1,115 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "INV",
+      "shapes": [
+        {
+          "bottom": 0,
+          "layer_base": "OUTLINE",
+          "left": 0,
+          "right": 920,
+          "top": 1400,
+          "type": "box"
+        },
+        {
+          "bottom": 500,
+          "layer_base": "metal1",
+          "left": 100,
+          "right": 300,
+          "top": 900,
+          "type": "box"
+        },
+        {
+          "bottom": 500,
+          "layer_base": "metal1",
+          "left": 600,
+          "right": 800,
+          "top": 900,
+          "type": "box"
+        }
+      ]
+    },
+    {
+      "instances": [
+        {
+          "sname": "INV",
+          "trans": [
+            0,
+            1000,
+            1000
+          ]
+        },
+        {
+          "sname": "INV",
+          "trans": [
+            1,
+            2400,
+            7000
+          ]
+        },
+        {
+          "sname": "INV",
+          "trans": [
+            2,
+            1920,
+            4400
+          ]
+        },
+        {
+          "sname": "INV",
+          "trans": [
+            3,
+            1000,
+            5920
+          ]
+        },
+        {
+          "sname": "INV",
+          "trans": [
+            4,
+            1000,
+            12400
+          ]
+        },
+        {
+          "sname": "INV",
+          "trans": [
+            5,
+            1000,
+            15000
+          ]
+        },
+        {
+          "sname": "INV",
+          "trans": [
+            6,
+            1920,
+            9000
+          ]
+        },
+        {
+          "sname": "INV",
+          "trans": [
+            7,
+            2400,
+            13920
+          ]
+        }
+      ],
+      "name": "top",
+      "shapes": [
+        {
+          "bottom": 0,
+          "layer_base": "OUTLINE",
+          "left": 0,
+          "right": 20000,
+          "top": 20000,
+          "type": "box"
+        }
+      ]
+    }
+  ],
+  "dbu_um": 0.001,
+  "klayout_db_version": "0.30.8"
+}

@@ -1,0 +1,73 @@
+# Pinned-source KLayout build for validation / oracle parity checks.
+#
+# Produces a Python 3 environment with `klayout.db` importable via
+# PYTHONPATH=$PREFIX/pymod (same layout as `make install` from KLayout's qmake build).
+#
+# Pin: edit `validation/docker/klayout-git-ref` (single line: tag, branch, or full SHA).
+#
+#   docker build --platform linux/amd64 -f validation/docker/Dockerfile.klayout \
+#     -t klayout-rs-klayout:latest validation/docker
+#
+FROM --platform=linux/amd64 ubuntu:22.04
+
+ENV DEBIAN_FRONTEND=noninteractive
+
+RUN apt-get update \
+ && apt-get install -y --no-install-recommends \
+      ca-certificates \
+      git \
+      build-essential \
+      ccache \
+      python3 \
+      python3-dev \
+      ruby \
+      ruby-dev \
+      qtbase5-dev \
+      qttools5-dev \
+      libqt5svg5-dev \
+      qtmultimedia5-dev \
+      qt5-qmake \
+      zlib1g-dev \
+      libpng-dev \
+      libexpat1-dev \
+      libcurl4-openssl-dev \
+      libgit2-dev \
+ && rm -rf /var/lib/apt/lists/*
+
+ENV PATH="/usr/lib/ccache:${PATH}"
+ENV QMAKE_CCACHE=1
+
+COPY klayout-git-ref /tmp/klayout-git-ref
+
+ARG PREFIX=/opt/klayout-install
+ENV PREFIX=${PREFIX}
+# Large translation units (e.g. dbRegionLocalOperations) can exceed RAM when
+# `make -j$(nproc)` under Docker defaults — cap jobs for reproducible builds.
+ARG MAKE_JOBS=2
+
+RUN set -eux; \
+    REF=$(tr -d ' \n\r\t' < /tmp/klayout-git-ref); \
+    test -n "$REF"; \
+    if git clone --branch "${REF}" --depth 1 https://github.com/KLayout/klayout.git /src/klayout; then \
+      echo "klayout: shallow clone at ${REF}"; \
+    else \
+      rm -rf /src/klayout; \
+      git clone https://github.com/KLayout/klayout.git /src/klayout; \
+      cd /src/klayout; \
+      git fetch --depth 1 origin "${REF}"; \
+      git checkout -q FETCH_HEAD; \
+    fi; \
+    cd /src/klayout; \
+    ./build.sh \
+      -without-qtbinding \
+      -python /usr/bin/python3 \
+      -build /tmp/klayout-build \
+      -bin "${PREFIX}" \
+      -j"${MAKE_JOBS}"; \
+    python3 -c "import sys; sys.path.insert(0, '${PREFIX}/pymod'); import klayout.db as d; v=getattr(d, '__version__', None); print('klayout.db ok', v)"
+
+ENV PYTHONPATH="${PREFIX}/pymod"
+
+WORKDIR /work
+
+CMD ["bash"]

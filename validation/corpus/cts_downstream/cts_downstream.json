@@ -1,0 +1,143 @@
+{
+  "cases": [
+    {
+      "ck_pin": "CK",
+      "clock_net": "clk",
+      "def_file": "two_ff.def",
+      "dme_expect": {
+        "buffer_count": 2,
+        "internal_buffers": [
+          [
+            6150,
+            1700,
+            0
+          ]
+        ],
+        "sink_path_lengths": [
+          [
+            "FF1",
+            4500
+          ],
+          [
+            "FF2",
+            4500
+          ]
+        ],
+        "skew": 0,
+        "total_wire_length": 9000
+      },
+      "dme_source_dbu": [
+        6150,
+        1700
+      ],
+      "name": "two_ff",
+      "openroad_after_cts": {
+        "buffer_usage": {
+          "BUF": 3
+        },
+        "buffers_inserted": 3,
+        "clock_roots": 1,
+        "clock_subnets": 3,
+        "sinks": 2
+      },
+      "sinks_ck_dbu": [
+        [
+          "FF1",
+          1650,
+          1700
+        ],
+        [
+          "FF2",
+          10650,
+          1700
+        ]
+      ]
+    },
+    {
+      "ck_pin": "CK",
+      "clock_net": "clk",
+      "def_file": "four_ff.def",
+      "dme_expect": {
+        "buffer_count": 4,
+        "internal_buffers": [
+          [
+            2650,
+            6200,
+            0
+          ],
+          [
+            9150,
+            6200,
+            0
+          ],
+          [
+            15650,
+            6200,
+            0
+          ]
+        ],
+        "sink_path_lengths": [
+          [
+            "FF0",
+            10000
+          ],
+          [
+            "FF1",
+            10000
+          ],
+          [
+            "FF2",
+            10000
+          ],
+          [
+            "FF3",
+            10000
+          ]
+        ],
+        "skew": 0,
+        "total_wire_length": 27000
+      },
+      "dme_source_dbu": [
+        9150,
+        6200
+      ],
+      "name": "four_ff",
+      "openroad_after_cts": {
+        "buffer_usage": {
+          "BUF": 3
+        },
+        "buffers_inserted": 3,
+        "clock_roots": 1,
+        "clock_subnets": 3,
+        "sinks": 4
+      },
+      "sinks_ck_dbu": [
+        [
+          "FF0",
+          2650,
+          2700
+        ],
+        [
+          "FF1",
+          15650,
+          2700
+        ],
+        [
+          "FF2",
+          2650,
+          9700
+        ],
+        [
+          "FF3",
+          15650,
+          9700
+        ]
+      ]
+    }
+  ],
+  "dme_config": {
+    "allow_detour": true
+  },
+  "oracle": "OpenROAD in klayout-rs-oracle:latest: read_def + read_liberty + clock_tree_synthesis; report_cts metrics + OpenDB CK bbox centers for parity with placement DEF + klayout_lef + klayout_cts DME.",
+  "suite": "cts_downstream"
+}

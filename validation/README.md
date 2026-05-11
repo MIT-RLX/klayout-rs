@@ -10,9 +10,10 @@ cargo test -p klayout-validate --test parity_report -- --nocapture
 ```
 
 prints a Markdown table summarising pass/fail counts per suite. As of
-the last corpus regen (KLayout 0.30.8 + OpenROAD 26Q2): **3302 / 3302
+the last corpus regen (KLayout 0.30.8 + OpenROAD 26Q2): **4893 / 4893
 cases pass (100.00%)** across two oracles — `klayout.db` for layout
-formats and `openroad/orfs` (OpenSTA) via Docker for Liberty. Strict
+formats and `openroad/orfs` (OpenSTA / OpenDB) via Docker for Liberty,
+LEF, DEF, and SPEF. Strict
 vertex-level equality (no point-set or symmetric-difference fudge —
 every polygon must match the reference vertex-for-vertex after
 canonicalising to lowest-y/lowest-x first). The `parity_report` test
@@ -56,6 +57,10 @@ python3 -m venv .venv
 .venv/bin/python validation/oracle.py gds
 ```
 
+To regenerate against a **pinned KLayout built inside Docker** (same git ref as
+`validation/docker/klayout-git-ref`), build the image and run the oracle with a
+writable corpus dir — see [`validation/docker/README.md`](docker/README.md).
+
 For formats KLayout can't read (Liberty, soon SPEF / LEF / DEF), the
 oracle is OpenSTA / OpenDB run inside Docker:
 
@@ -70,6 +75,34 @@ python3 validation/oracle_external.py liberty
 
 CI does not need Docker — the corpus JSON is checked in.
 
+## `density_window` combinatorial suite
+
+`corpus/drc_density_grid.json` is a **KLayout-driven Cartesian product**
+of tiling knobs (`padding_zero` / `padding_ignore`, `with`/`without` density,
+`tile_origin`, `tile_count`, singleton frame, window vs step). It is **not**
+the full continuous (coordinates × floats) space — expand `gen_drc_density_grid()`
+in `oracle.py` when you need more coverage. Regenerate:
+
+```sh
+.venv/bin/python validation/oracle.py drc_density_grid
+```
+
+## Docker-only PDK + OpenROAD smoke (optional)
+
+Heavyweight integration checks (network + OpenROAD-flow) live in
+[`validation/docker/README.md`](docker/README.md):
+
+```sh
+./validation/docker/run_benchmark.sh pdk-smoke
+./validation/docker/run_benchmark.sh openroad-gcd-synth
+```
+
+Rebuild the pinned-AMD64 oracle image with:
+
+```sh
+docker build -t klayout-rs-oracle:latest validation/docker/
+```
+
 ## What's covered
 
 | Suite                   | Cases    | What's verified                                                |
@@ -79,7 +112,8 @@ CI does not need Docker — the corpus JSON is checked in.
 | `gds/*.gds` — reader    | 14 files | KLayout writes, our reader matches canonical dump              |
 | writer — round-trip     | 11 cases | We write, KLayout reads, dumps match our in-memory canonical   |
 | `region.json`           | 24 cases | Boolean ops + `size` vs `db.Region` (point-set equivalence)    |
-| `drc.json`              | 18 cases | All 5 DRC rules vs `db.Region.{width,space,...}_check`         |
+| `drc.json` | 40 cases | DRC primitives + `density_window` fixtures vs `db.Region` checks / `TilingProcessor` |
+| `drc_density_grid.json` | 1536 cases | `density_window` combinatorial grid (same oracle as `drc`) |
 | `oasis/*.oas` — reader  | 3 files  | KLayout writes OASIS, our reader matches canonical dump        |
 | `polygon_ops.json`      | 60 cases | `area`, `perimeter`, `bbox` vs `db.Polygon`                    |
 

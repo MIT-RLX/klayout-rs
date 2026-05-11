@@ -19,6 +19,7 @@ pub mod antenna;
 pub mod astar;
 pub mod bundler;
 pub mod crosstalk;
+pub mod congestion;
 pub mod detailed;
 pub mod engine;
 pub mod global;
@@ -41,6 +42,7 @@ pub use bundler::{Bundler, DiffPairBundler, IdentityBundler, LengthMatchedBundle
 pub use crosstalk::{
     detect_violations, insert_shielding, CrosstalkConfig, CrosstalkViolation,
 };
+pub use congestion::FractionalCongestionGrid;
 pub use detailed::{DetailedRouter, LayerRules, NdrOverride, RouteRequest, RoutedNet};
 pub use engine::{
     sort_routed_by_name, DetailedEngine, EngineMetrics, GlobalThenDetailedEngine,
@@ -56,8 +58,8 @@ pub use ordering::{
     reorder,
 };
 pub use multilayer::{
-    multilayer_route, LayerStack, MultiAStarConfig, PreferredDirection, RouteSegment,
-    RoutingLayer,
+    multilayer_route, multilayer_route_with_congestion, LayerStack, MultiAStarConfig,
+    PreferredDirection, RouteSegment, RoutingLayer,
 };
 pub use planner::{ManhattanPlanner, Obstacles, Planner};
 pub use em::{black_mttf_years, em_check, EmLayer, EmViolation, NetCurrent};

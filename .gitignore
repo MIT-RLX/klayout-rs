@@ -52,6 +52,8 @@ tmp/
 __pycache__/
 *.py[cod]
 .venv/
+.venv-oracle/
+.venv_oracle/
 venv/
 
 # Node (if any docs tooling)

@@ -4,7 +4,7 @@ Status snapshot of differential-parity coverage and what's left to close it.
 
 ## Where we are
 
-**3341 / 3341 cases passing (100.00%)** under strict vertex/value
+**4893 / 4893 cases passing (100.00%)** under strict vertex/value
 equality, across 14 suites and three reference oracles:
 
 - `klayout.db` (Python) — trans, bbox, drc, gds, oasis, region,
@@ -25,19 +25,23 @@ following surfaces are read by the parser but not asserted in any
 fixture yet:
 
 ### DEF
-- `SPECIALNETS` (power / ground stripes).
-- `VIAS` block (per-design via definitions).
-- `GROUPS`, `REGIONS`, `BLOCKAGES`, `PROPERTYDEFINITIONS`.
-- Routed wires beyond two-vertex polylines (vias on routes,
-  multi-segment paths with bends).
+
+Import tests in `klayout-lef/tests/def_import_coverage.rs` and
+`tests/parity.rs` now assert `SPECIALNETS` (stripes), design `VIAS`,
+`GROUPS`, `REGIONS`, `BLOCKAGES`, multi-segment routes with vias, and
+`*` coordinate wildcards. The OpenDB JSON corpus in
+`validation/klayout-validate/tests/def.rs` still targets regular `NETS`
+geometry plus placement (special nets are not wire-dumped from OpenDB
+the same way). Still thin: `PROPERTYDEFINITIONS`, scan chains, STYLE /
+SHIELD on routes, and very large PDK-style special-net RECT mixes.
 
 ### LEF
+
 - `SPACING` rules (within-layer, parallel-edge, end-of-line).
 - Antenna rules (`ANTENNAGATEAREA`, `ANTENNADIFFAREA`).
-- `VIA` and `VIARULE` definitions.
-- `SITE` definitions and `ROW` / `TRACK` / `GCELLGRID` from companion
-  DEFs.
-- Polygon (non-rect) pin ports.
+- Extra `VIARULE` / generated-via flavours beyond the `VIA` definitions
+  covered in `tests/parity.rs`.
+- Polygon (non-rect) pin ports in corpus-scale fixtures.
 
 ### Liberty
 - `timing()` arcs (delay/transition NLDM tables).

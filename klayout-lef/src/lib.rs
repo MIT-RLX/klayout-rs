@@ -5,10 +5,12 @@
 //!   boundary + pin geometry).
 //! * **DEF** — placed-and-routed netlist referencing LEF cells.
 //!
-//! v1 covers the basic shape — `MACRO`/`PIN`/`PORT` for LEF and
-//! `DESIGN`/`COMPONENTS` for DEF. Full LEF/DEF spec compliance (vias,
-//! routing, blockages, antenna properties, …) is a follow-up; the
-//! parser scaffolding is structured to add records incrementally.
+//! Import reads into [`klayout_core::Library`] plus [`DefDesign`](types::DefDesign) metadata
+//! (rows, tracks, vias, nets, special nets, blockages, regions, groups). OpenDB
+//! differential parity for placement and regular-net routing lives in
+//! `validation/klayout-validate/tests/def.rs`. Extra import combinations and edge
+//! cases (special stripes, stack vias, `*` coordinates, `PIN` net taps) are in
+//! `tests/def_import_coverage.rs`.
 
 pub mod def_read;
 pub mod def_write;

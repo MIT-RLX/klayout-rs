@@ -1,6 +1,10 @@
 //! Differential validation of klayout-rs against KLayout's `klayout.db`.
 
-use klayout_core::{Cell, Library, Point, Polygon, Repetition, Rot4, Shape};
+pub mod cts_downstream;
+
+use std::collections::HashSet;
+
+use klayout_core::{Cell, LayerInfo, Library, Point, Polygon, Repetition, Rot4, Shape};
 use serde_json::{json, Map, Value};
 
 /// Flatten a polygon-with-holes into the keyhole-encoded hull KLayout
@@ -268,6 +272,168 @@ pub fn instance_to_json(inst: &klayout_core::Instance, child_name: &str) -> Valu
         );
     }
     Value::Object(obj)
+}
+
+/// Layer bucket for LEF/DEF parity with KLayout: strip LEF purpose suffixes
+/// (`metal1.PIN` → `metal1`) and map die-area decoration to `OUTLINE`.
+fn layer_base_for_lefdef_parity(info: &LayerInfo) -> String {
+    let n = info.name.as_str();
+    if n.is_empty() {
+        return String::new();
+    }
+    let base = n.split('.').next().unwrap_or("");
+    if base == "DIEAREA" {
+        "OUTLINE".to_string()
+    } else {
+        base.to_string()
+    }
+}
+
+/// Compact layout dump for KLayout LEF/DEF import parity: sorted cells, shapes
+/// keyed by `layer_base` (no GDS numbers), no text, instances without properties.
+/// Mirrors ``validation/oracle_klayout_lefdef.py`` / ``compact_layout_dump``.
+///
+/// Only cells **reachable from the DEF design top** (following instances) are
+/// included, matching KLayout's layout database (unused LEF macros are not
+/// materialized as separate cells there).
+pub fn lefdef_klayout_parity_dump(lib: &Library, design_top: klayout_core::CellId) -> Value {
+    let mut seen: HashSet<klayout_core::CellId> = HashSet::new();
+    let mut stack = vec![design_top];
+    while let Some(cid) = stack.pop() {
+        if !seen.insert(cid) {
+            continue;
+        }
+        let c = lib.get(cid);
+        for inst in c.instances() {
+            stack.push(inst.cell);
+        }
+    }
+    let mut ids: Vec<klayout_core::CellId> = seen.into_iter().collect();
+    ids.sort_by_key(|id| lib.get(*id).name().as_str().to_string());
+
+    let cells: Vec<Value> = ids
+        .into_iter()
+        .map(|id| {
+            let c = lib.get(id);
+            let mut shapes: Vec<Value> = Vec::new();
+            for layer_idx in c.layers() {
+                let info = lib.layer_info(layer_idx);
+                for s in c.shapes_on(layer_idx) {
+                    if let Some(v) = shape_lefdef_parity(&s, &info) {
+                        shapes.push(v);
+                    }
+                }
+            }
+            shapes.sort_by_key(sort_key);
+
+            let mut instances: Vec<Value> = c
+                .instances()
+                .iter()
+                .map(|inst| {
+                    let child = lib.get(inst.cell);
+                    instance_lefdef_parity(inst, child.name().as_str())
+                })
+                .collect();
+            instances.sort_by_key(sort_key);
+
+            json!({
+                "name": c.name().as_str(),
+                "shapes": shapes,
+                "instances": instances,
+            })
+        })
+        .collect();
+
+    json!({
+        "dbu_um": 1.0 / (lib.dbu() as f64),
+        "cells": cells,
+    })
+}
+
+fn shape_lefdef_parity(shape: &Shape, info: &LayerInfo) -> Option<Value> {
+    if matches!(shape, Shape::Text(_)) {
+        return None;
+    }
+    let lb = layer_base_for_lefdef_parity(info);
+    match shape {
+        Shape::Box(r) => Some(json!({
+            "type": "box",
+            "layer_base": lb,
+            "left": r.bbox.min.x,
+            "bottom": r.bbox.min.y,
+            "right": r.bbox.max.x,
+            "top": r.bbox.max.y,
+        })),
+        Shape::Polygon(p) => {
+            let hull_pts: Vec<Point> = if p.holes.is_empty() {
+                p.hull.iter().copied().collect()
+            } else {
+                make_keyhole_dump(p)
+            };
+            let hull: Vec<Value> = hull_pts.iter().map(|pt| json!([pt.x, pt.y])).collect();
+            Some(json!({
+                "type": "polygon",
+                "layer_base": lb,
+                "hull": hull,
+                "holes": Vec::<Value>::new(),
+            }))
+        }
+        Shape::Path(p) => {
+            let pts: Vec<Value> = p.points.iter().map(|pt| json!([pt.x, pt.y])).collect();
+            let half_width = p.width / 2;
+            let (be, ee) = if p.begin_ext != 0 || p.end_ext != 0 {
+                (p.begin_ext, p.end_ext)
+            } else if p.width > 0 {
+                (half_width, half_width)
+            } else {
+                (0, 0)
+            };
+            Some(json!({
+                "type": "path",
+                "layer_base": lb,
+                "width": p.width,
+                "points": pts,
+                "begin_ext": be,
+                "end_ext": ee,
+                "round": matches!(p.cap, klayout_core::PathCap::Round),
+            }))
+        }
+        Shape::Text(_) => None,
+    }
+}
+
+/// `db.Trans.rot()` as KLayout's LEF/DEF reader reports (`int(inst.trans.rot)`).
+/// KLayout's `FTrans` for DEF flipped orientations uses a different mirror/rotate
+/// factorization than [`rot_combined`] for two cases, so FN/FS indices are swapped.
+fn rot_klayout_db_trans_index(t: klayout_core::Trans) -> i64 {
+    match rot_combined(t) {
+        4 => 6,
+        6 => 4,
+        other => other,
+    }
+}
+
+fn instance_lefdef_parity(inst: &klayout_core::Instance, child_name: &str) -> Value {
+    let mut m = Map::new();
+    m.insert("sname".into(), json!(child_name));
+    m.insert(
+        "trans".into(),
+        json!([
+            rot_klayout_db_trans_index(inst.trans),
+            inst.trans.disp.x,
+            inst.trans.disp.y
+        ]),
+    );
+    if let Some(Repetition::Regular { col, row, n_cols, n_rows }) = &inst.repetition {
+        m.insert(
+            "array".into(),
+            json!({
+                "a": [row.x, row.y], "b": [col.x, col.y],
+                "na": *n_rows, "nb": *n_cols,
+            }),
+        );
+    }
+    Value::Object(m)
 }
 
 pub fn shape_sort_key(v: &Value) -> (i64, i64, String, String) {

@@ -21,15 +21,17 @@ These two text formats are how digital flows hand layouts off:
 Errors return `klayout_lef::Result<T>`; the error type `LefError`
 includes the failing token's line number.
 
-## Coverage (v1)
+## Coverage
+
+- **OpenDB JSON parity** — `validation/klayout-validate/tests/{lef,def}.rs` (Docker-regenerated corpus).
+- **DEF import combinations** — `tests/def_import_coverage.rs`: SPECIALNETS (routed stripe, `USE`), design-level `VIAS`, `ROW` / `TRACKS` / `GCELLGRID`, `BLOCKAGES` / `REGIONS` / `GROUPS`, net routing with `*` coordinates, wire-then-via segment order, and `( PIN … )` taps. Round-trip coverage remains in `tests/parity.rs` and `tests/roundtrip.rs`.
+
+### Records handled in this crate
 
 - LEF: `MACRO`, `PIN`, `PORT`, `OBS`, `LAYER`, `VIA`, `SITE`.
-- DEF: `DESIGN`, `UNITS`, `DIEAREA`, `ROW`, `COMPONENTS`, `PINS`,
-  `NETS`.
+- DEF: `DESIGN`, `UNITS`, `DIEAREA`, `ROW`, `TRACKS`, `GCELLGRID`, `VIAS`, `COMPONENTS`, `PINS`, `NETS`, `SPECIALNETS`, `BLOCKAGES`, `REGIONS`, `GROUPS`.
 
-Antenna properties, full routing records, and blockage flavours are a
-follow-up; the parser scaffolding is structured to add records
-incrementally.
+Deeper LEF rule decks (spacing / antenna tables), STYLE/SHIELD on nets, and full property-definition surfaces are still incremental extensions.
 
 ## Example
 

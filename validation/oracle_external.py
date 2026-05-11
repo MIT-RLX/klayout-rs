@@ -1,15 +1,16 @@
 #!/usr/bin/env python3
 """External oracle harness using OpenROAD (OpenSTA + OpenDB) via Docker.
 
-Dumps reference parses of formats that `klayout.db` can't read:
+Dumps reference parses of formats that `klayout.db` can't read plus OpenROAD-only flows:
   - Liberty (.lib) -> via OpenSTA's `read_liberty`
   - SPEF       -> via OpenSTA's `read_spef`        (deferred)
   - LEF        -> via OpenDB's `read_lef`          (deferred)
   - DEF        -> via OpenDB's `read_def`          (deferred)
-
+  - CTS downstream: mini DEF + `cts_demo.lib` + `clock_tree_synthesis`; CK bbox + `report_cts`
 Usage:
-    python validation/oracle_external.py liberty   # regen liberty corpus
-    python validation/oracle_external.py all       # regen all sub-suites
+    python validation/oracle_external.py liberty         # regen liberty corpus
+    python validation/oracle_external.py cts_downstream  # regen DEF+CTS JSON (Docker)
+    python validation/oracle_external.py all             # regen all sub-suites (inc. CTS)
 
 Requires Docker. The first invocation pulls the OpenROAD image (~5GB);
 subsequent runs are fast (the corpus is checked in, so CI does not need
@@ -18,6 +19,8 @@ Docker).
 from __future__ import annotations
 import json
 import os
+import re
+import shutil
 import subprocess
 import sys
 import textwrap
@@ -985,12 +988,218 @@ def gen_def(out_dir: Path) -> None:
         print(f"wrote validation/corpus/def/{name}.json")
 
 
+# ---------------- CTS downstream (DEF + Liberty + TritonCTS) ----------------
+
+REPO_ROOT = ROOT.parent
+
+
+def _between(text: str, start: str, end: str) -> str:
+    i = text.find(start)
+    if i < 0:
+        raise RuntimeError(f"missing marker {start!r} in openroad output")
+    i += len(start)
+    j = text.find(end, i)
+    if j < 0:
+        raise RuntimeError(f"missing marker {end!r} in openroad output")
+    return text[i:j].strip()
+
+
+def _parse_sink_ck_centers(block: str) -> list[tuple[str, int, int]]:
+    out: list[tuple[str, int, int]] = []
+    for line in block.splitlines():
+        s = line.strip()
+        if not s.startswith("SINK_CK "):
+            continue
+        parts = s.split()
+        if len(parts) < 6:
+            continue
+        inst = parts[1]
+        xmin, ymin, xmax, ymax = (int(parts[2]), int(parts[3]), int(parts[4]), int(parts[5]))
+        out.append((inst, (xmin + xmax) // 2, (ymin + ymax) // 2))
+    out.sort(key=lambda t: t[0])
+    return out
+
+
+def _parse_openroad_report(txt: str) -> dict:
+    """Structured fields from ``report_cts`` output (+ buffer master counts)."""
+    m: dict = {}
+    for line in txt.splitlines():
+        line_l = line.strip()
+        for pat, key in (
+            (r"Clock Roots:\s*(\d+)", "clock_roots"),
+            (r"Buffers Inserted:\s*(\d+)", "buffers_inserted"),
+            (r"Clock Subnets:\s*(\d+)", "clock_subnets"),
+            (r"Total number of Sinks:\s*(\d+)", "sinks"),
+        ):
+            mo = re.search(pat, line_l, re.I)
+            if mo:
+                m[key] = int(mo.group(1))
+
+    in_bufs = False
+    bu: dict[str, int] = {}
+    for line in txt.splitlines():
+        sl = line.strip()
+        if sl.startswith("Buffers used"):
+            in_bufs = True
+            continue
+        if in_bufs:
+            if not sl:
+                in_bufs = False
+                continue
+            mo = re.match(r"^(\S+)\s*:\s*(\d+)\s*$", sl)
+            if mo:
+                bu[mo.group(1)] = int(mo.group(2))
+
+    if bu:
+        m["buffer_usage"] = dict(sorted(bu.items()))
+    return m
+
+
+def _rust_dme_expect(
+    source: tuple[int, int], sinks: list[tuple[str, int, int]]
+) -> dict:
+    payload = {
+        "source": [source[0], source[1]],
+        "sinks_ck_dbu": [[n, x, y] for (n, x, y) in sinks],
+        "dme_config": {"allow_detour": True},
+    }
+    cmd = [
+        "cargo",
+        "run",
+        "-q",
+        "-p",
+        "klayout-cts",
+        "--example",
+        "emit_dme_metrics",
+    ]
+    r = subprocess.run(
+        cmd,
+        cwd=REPO_ROOT,
+        input=json.dumps(payload).encode(),
+        capture_output=True,
+    )
+    if r.returncode != 0:
+        raise RuntimeError(
+            f"emit_dme_metrics failed: {r.stderr.decode()}{r.stdout.decode()}"
+        )
+    line = r.stdout.decode().strip().splitlines()[-1]
+    return json.loads(line)
+
+
+_ORACLE_CTS_TCL = textwrap.dedent(
+    r"""
+    read_lef /work/tech.lef
+    read_lef /work/cells.lef
+    read_liberty /work/cts_demo.lib
+    read_def /work/current.def
+    create_clock -period 10 [get_ports clk]
+
+    set_wire_rc -signal -layer metal1 -h_resistance 2.0e-04 -h_capacitance 0.10e-15
+    set_wire_rc -signal -layer metal2 -v_resistance 2.0e-04 -v_capacitance 0.10e-15
+    set_wire_rc -clock -layer metal2 -v_resistance 2.0e-04 -v_capacitance 0.12e-15
+
+    puts OPENRO_DUMP_SINK_START
+    set blk [[[ord::get_db] getChip] getBlock]
+    foreach inst [$blk getInsts] {
+      set nm [$inst getName]
+      foreach iterm [$inst getITerms] {
+        set mt [$iterm getMTerm]
+        if {[$mt getName] eq "CK"} {
+          set box [$iterm getBBox]
+          puts "SINK_CK $nm [$box xMin] [$box yMin] [$box xMax] [$box yMax]"
+        }
+      }
+    }
+    puts OPENRO_DUMP_SINK_END
+
+    set_cts_config -root_buf BUF -buf_list BUF -wire_unit 25
+    clock_tree_synthesis -buf_list BUF
+    report_cts -out_file /work/__rpt__
+
+    puts OPENRO_REPORT_BODY_START
+    puts [exec cat /work/__rpt__]
+    puts OPENRO_REPORT_BODY_END
+
+    exit
+    """
+).strip()
+
+
+def gen_cts_downstream() -> None:
+    work = CORPUS / "cts_downstream"
+    out_json = work / "cts_downstream.json"
+    cases_js: list[dict] = []
+    for case_name, def_fname in (
+        ("two_ff", "two_ff.def"),
+        ("four_ff", "four_ff.def"),
+    ):
+        shutil.copy(work / def_fname, work / "current.def")
+        # Unique report file name (docker volume persists between runs).
+        rpt_name = "report_" + case_name + ".txt"
+        tcl = _ORACLE_CTS_TCL.replace("__rpt__", rpt_name)
+        stdout = _docker_openroad(work, tcl)
+
+        sinks = _parse_sink_ck_centers(
+            _between(stdout, "OPENRO_DUMP_SINK_START", "OPENRO_DUMP_SINK_END")
+        )
+        if len(sinks) < 2:
+            raise RuntimeError(f"{case_name}: expected >=2 sinks, got {sinks}")
+
+        cx = round(sum(xy[1] for xy in sinks) / len(sinks))
+        cy = round(sum(xy[2] for xy in sinks) / len(sinks))
+        dme_expect = _rust_dme_expect((cx, cy), sinks)
+
+        rpt_txt = _between(
+            stdout, "OPENRO_REPORT_BODY_START", "OPENRO_REPORT_BODY_END"
+        )
+        openroad = _parse_openroad_report(rpt_txt)
+        req = {
+            "clock_roots",
+            "buffers_inserted",
+            "clock_subnets",
+            "sinks",
+            "buffer_usage",
+        }
+        if req - set(openroad.keys()):
+            raise RuntimeError(f"{case_name}: bad report_cts parse: {openroad!r}")
+
+        cases_js.append(
+            {
+                "name": case_name,
+                "def_file": def_fname,
+                "clock_net": "clk",
+                "ck_pin": "CK",
+                "dme_source_dbu": [cx, cy],
+                "sinks_ck_dbu": [[n, x, y] for (n, x, y) in sinks],
+                "openroad_after_cts": openroad,
+                "dme_expect": dme_expect,
+            }
+        )
+
+        (work / rpt_name).unlink(missing_ok=True)
+
+    (work / "current.def").unlink(missing_ok=True)
+
+    root = {
+        "suite": "cts_downstream",
+        "oracle": (
+            "OpenROAD in klayout-rs-oracle:latest: read_def + read_liberty + "
+            "clock_tree_synthesis; report_cts metrics + OpenDB CK bbox centers "
+            "for parity with placement DEF + klayout_lef + klayout_cts DME."
+        ),
+        "dme_config": {"allow_detour": True},
+        "cases": cases_js,
+    }
+    out_json.write_text(json.dumps(root, indent=2, sort_keys=True) + "\n")
+    print(f"wrote {out_json.relative_to(REPO_ROOT)}")
+
+
 # ---------------- main ----------------
 
 def main():
     targets = sys.argv[1:] or ["all"]
     if "all" in targets:
-        targets = ["liberty", "spef", "lef", "def"]
+        targets = ["liberty", "spef", "lef", "def", "cts_downstream"]
     for t in targets:
         if t == "liberty":
             gen_liberty(CORPUS / "liberty")
@@ -1000,6 +1209,8 @@ def main():
             gen_lef(CORPUS / "lef")
         elif t == "def":
             gen_def(CORPUS / "def")
+        elif t == "cts_downstream":
+            gen_cts_downstream()
         else:
             print(f"unknown target: {t}", file=sys.stderr)
             sys.exit(2)

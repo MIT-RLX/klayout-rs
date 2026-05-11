@@ -1,0 +1,3 @@
+# Ephemeral captured logs — keep them locally; regenerate with record_benchmark_snapshot.py
+*
+!.gitignore

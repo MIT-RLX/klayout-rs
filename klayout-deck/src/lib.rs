@@ -20,6 +20,7 @@
 //!         rule "M1.A.1": area_min(layers.m1, 6000);
 //!         rule "V12.E": enclosing(layers.m1, layers.via12, 50);
 //!         rule "M1.M2.OL": overlap(layers.m1, layers.m2, 100);
+//!         rule "M1.DEN.1": density_window(&layers.m1, (1000, 1000), (500, 500), 0.30, 0.70);
 //!     }
 //! }
 //!
@@ -88,7 +89,10 @@ impl DrcReport {
 // Re-exports the deck macro reaches into.
 #[doc(hidden)]
 pub mod __exports {
-    pub use klayout_drc::{area_min, enclosing, overlap, separation, space, width};
+    pub use klayout_drc::{
+        area_min, density, density_window, density_window_with_config, enclosing, overlap, separation,
+        space, width, DensityPadding, DensityWindowConfig, DensityWindowOutput,
+    };
 }
 
 /// Declare a rule deck.

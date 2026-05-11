@@ -14,7 +14,7 @@ basis for further work, but **not** a sign-off-grade flow. See
 | Metric | Value | Source |
 |--------|-------|--------|
 | Test sections green | **68 / 68** | `cargo test --workspace` |
-| Differential parity vs KLayout C++ + OpenSTA / OpenDB | **3341 / 3341 cases (100.00%)** | `cargo test -p klayout-validate --test parity_report` |
+| Differential parity vs KLayout C++ + OpenSTA / OpenDB | **4893 / 4893 cases (100.00%)** | `cargo test -p klayout-validate --test parity_report` |
 | Parity sub-suites | **14** (bbox, cif, def, drc, dxf, gds, lef, liberty, mag, oasis, polygon_ops, region, spef, trans) | same |
 | Clippy warnings under `deny(warnings)` | **0** | `cargo clippy --workspace --all-targets` |
 | Production unwraps without an invariant message | **0** | repo-wide audit |
@@ -135,7 +135,7 @@ just supply-chain  # cargo audit + cargo deny + cargo vet
 |         | False / multicycle / max-delay / min-delay path exceptions (`set_false_path` etc.) | ✅ |
 |         | MCMM orchestrator (per-scenario corner + mode + exceptions, cross-scenario worst-slack) | ✅ |
 |         | SDC parser feeding exceptions | ❌ |
-| **Validation** | Differential corpus vs KLayout C++ + OpenSTA + OpenDB | **3341 / 3341 cases (100.00%)** ✅ |
+| **Validation** | Differential corpus vs KLayout C++ + OpenSTA + OpenDB | **4893 / 4893 cases (100.00%)** ✅ |
 |                | Property tests for extreme coordinates | ✅ |
 |                | `cargo-fuzz` harnesses for parsers | ✅ (run with budget; 5 targets, 400 K total runs, 0 crashes) |
 |                | Reproducible Docker build | ✅ |
@@ -319,7 +319,7 @@ oracles:
 2. **OpenSTA / OpenDB / `spef_dump.py`** via Docker (`openroad/orfs:latest`)
    — reference for Liberty, LEF, DEF, SPEF.
 
-Current state: **3341 / 3341 cases pass (100.00%)** across 14 sub-suites
+Current state: **4893 / 4893 cases pass (100.00%)** across 15 sub-suites
 (bbox, cif, def, drc, dxf, gds, lef, liberty, mag, oasis, polygon_ops,
 region, spef, trans).
 The corpus is checked in; CI does **not** need either oracle installed.

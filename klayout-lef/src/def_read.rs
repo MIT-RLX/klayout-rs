@@ -5,7 +5,8 @@
 //!   and returns its `CellId`. Drops design metadata.
 //! * [`read_def_full`] — returns a [`DefDesign`] with the parsed `Row`,
 //!   `Track`, `DesignPin`, `RouteNet`, `Blockage`, etc. tables in
-//!   addition to the placed top cell.
+//!   addition to the placed top cell. Optional [`crate::LefLibrary`] metadata
+//!   supplies LEF default routing width for `ROUTED` segments with no explicit width.
 //!
 //! Coverage:
 //! * Header (VERSION, DIVIDERCHAR, BUSBITCHARS, NAMESCASESENSITIVE).
@@ -33,14 +34,21 @@ use klayout_core::{
     Trans, Vec2,
 };
 use smol_str::SmolStr;
+use std::collections::HashMap;
 
 pub fn read_def(src: &[u8], lib: &Library) -> Result<CellId> {
-    let design = read_def_full(src, lib)?;
+    let design = read_def_full(src, lib, None)?;
     design.top.ok_or(LefError::MissingField("DESIGN"))
 }
 
-pub fn read_def_full(src: &[u8], lib: &Library) -> Result<DefDesign> {
-    let mut p = DefParser::new(src, lib)?;
+/// `lef_tech`: optional [`LefLibrary`] from [`crate::read_lef_full`], used for
+/// LEF per-layer default routing width when a NETS `ROUTED` segment omits width.
+pub fn read_def_full(
+    src: &[u8],
+    lib: &Library,
+    lef_tech: Option<&LefLibrary>,
+) -> Result<DefDesign> {
+    let mut p = DefParser::new(src, lib, lef_tech)?;
     p.parse_top()?;
     Ok(p.into_design())
 }
@@ -53,10 +61,15 @@ struct DefParser<'a> {
     top_builder: Option<CellBuilder>,
     top_id: Option<CellId>,
     design: DefDesign,
+    /// LEF `WIDTH` per routing layer (DBU), for default NETS wire width.
+    routing_width_dbu: HashMap<SmolStr, i64>,
 }
 
 impl<'a> DefParser<'a> {
-    fn new(src: &[u8], lib: &'a Library) -> Result<Self> {
+    fn new(src: &[u8], lib: &'a Library, lef_tech: Option<&LefLibrary>) -> Result<Self> {
+        let routing_width_dbu = lef_tech
+            .map(|l| l.routing_width_dbu(lib.dbu()))
+            .unwrap_or_default();
         let mut tk = Tokenizer::new(src);
         let mut tokens = Vec::new();
         let mut last_line = 1;
@@ -76,6 +89,7 @@ impl<'a> DefParser<'a> {
             top_builder: None,
             top_id: None,
             design,
+            routing_width_dbu,
         })
     }
 
@@ -936,14 +950,37 @@ impl<'a> DefParser<'a> {
                         if let Some(Token::Word(_)) = self.peek() {
                             self.advance();
                         }
+                    } else if upper == "VIA" {
+                        // `... ( x y ) VIA VIA12` (explicit keyword).
+                        self.advance();
+                        let via_name = self.expect_string_or_word()?;
+                        if points.len() >= 2 {
+                            out.push(RouteSegment::Wire {
+                                layer: layer.clone(),
+                                points: std::mem::take(&mut points),
+                                width,
+                            });
+                        }
+                        if let Some(at) = last {
+                            out.push(RouteSegment::Via {
+                                via_name: SmolStr::from(via_name),
+                                at,
+                            });
+                        }
                     } else if w.starts_with('+') || w == "+" {
                         // Continuation marker — terminates this segment.
                         break;
                     } else {
-                        // Probably a via name (LEF VIA reference at the end of a wire).
-                        // VIA names are bare words after a coordinate: `VIA12 + ...`
+                        // Bare via cell name after the last vertex.
                         let via_name = w.clone();
                         self.advance();
+                        if points.len() >= 2 {
+                            out.push(RouteSegment::Wire {
+                                layer: layer.clone(),
+                                points: std::mem::take(&mut points),
+                                width,
+                            });
+                        }
                         if let Some(at) = last {
                             out.push(RouteSegment::Via {
                                 via_name: SmolStr::from(via_name),
@@ -990,8 +1027,19 @@ impl<'a> DefParser<'a> {
                             hash_layer_name(layer),
                             0,
                         )));
-                    let w = width.unwrap_or(0);
-                    let path = Path::new(points.iter().copied(), w);
+                    let w_explicit = *width;
+                    let w = w_explicit.unwrap_or_else(|| {
+                        self.routing_width_dbu
+                            .get(layer)
+                            .copied()
+                            .unwrap_or(0)
+                    });
+                    let mut path = Path::new(points.iter().copied(), w);
+                    if w > 0 && w_explicit.is_none() {
+                        let h = w / 2;
+                        path.begin_ext = h;
+                        path.end_ext = h;
+                    }
                     cb.add_shape(layer_idx, path);
                 }
                 RouteSegment::Rect { layer, bbox } => {

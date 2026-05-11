@@ -1,0 +1,157 @@
+{
+  "cells": [
+    {
+      "instances": [],
+      "name": "BUF",
+      "shapes": [
+        {
+          "bottom": 0,
+          "layer_base": "OUTLINE",
+          "left": 0,
+          "right": 1380,
+          "top": 1400,
+          "type": "box"
+        },
+        {
+          "bottom": 500,
+          "layer_base": "metal1",
+          "left": 100,
+          "right": 300,
+          "top": 900,
+          "type": "box"
+        },
+        {
+          "bottom": 500,
+          "layer_base": "metal1",
+          "left": 1050,
+          "right": 1250,
+          "top": 900,
+          "type": "box"
+        }
+      ]
+    },
+    {
+      "instances": [],
+      "name": "INV",
+      "shapes": [
+        {
+          "bottom": 0,
+          "layer_base": "OUTLINE",
+          "left": 0,
+          "right": 920,
+          "top": 1400,
+          "type": "box"
+        },
+        {
+          "bottom": 500,
+          "layer_base": "metal1",
+          "left": 100,
+          "right": 300,
+          "top": 900,
+          "type": "box"
+        },
+        {
+          "bottom": 500,
+          "layer_base": "metal1",
+          "left": 600,
+          "right": 800,
+          "top": 900,
+          "type": "box"
+        }
+      ]
+    },
+    {
+      "instances": [
+        {
+          "sname": "BUF",
+          "trans": [
+            0,
+            10000,
+            1000
+          ]
+        },
+        {
+          "sname": "INV",
+          "trans": [
+            0,
+            1000,
+            1000
+          ]
+        },
+        {
+          "sname": "INV",
+          "trans": [
+            0,
+            20000,
+            1000
+          ]
+        }
+      ],
+      "name": "top",
+      "shapes": [
+        {
+          "begin_ext": 70,
+          "end_ext": 70,
+          "layer_base": "metal1",
+          "points": [
+            [
+              1500,
+              1200
+            ],
+            [
+              9500,
+              1200
+            ]
+          ],
+          "round": false,
+          "type": "path",
+          "width": 140
+        },
+        {
+          "begin_ext": 70,
+          "end_ext": 70,
+          "layer_base": "metal2",
+          "points": [
+            [
+              11000,
+              1200
+            ],
+            [
+              19500,
+              1200
+            ]
+          ],
+          "round": false,
+          "type": "path",
+          "width": 140
+        },
+        {
+          "bottom": 0,
+          "layer_base": "OUTLINE",
+          "left": 0,
+          "right": 30000,
+          "top": 10000,
+          "type": "box"
+        },
+        {
+          "bottom": 4950,
+          "layer_base": "metal1",
+          "left": -50,
+          "right": 50,
+          "top": 5050,
+          "type": "box"
+        },
+        {
+          "bottom": 4950,
+          "layer_base": "metal1",
+          "left": 29950,
+          "right": 30050,
+          "top": 5050,
+          "type": "box"
+        }
+      ]
+    }
+  ],
+  "dbu_um": 0.001,
+  "klayout_db_version": "0.30.8"
+}

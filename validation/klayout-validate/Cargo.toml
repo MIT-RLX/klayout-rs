@@ -17,7 +17,9 @@ klayout-drc = { path = "../../klayout-drc", version = "0.0.1" }
 klayout-liberty = { path = "../../klayout-liberty", version = "0.0.1" }
 klayout-connect = { path = "../../klayout-connect", version = "0.0.1" }
 klayout-lef = { path = "../../klayout-lef", version = "0.0.1" }
+klayout-cts = { path = "../../klayout-cts", version = "0.0.1" }
 serde_json = { workspace = true }
+smol_str = { workspace = true }
 
 [dev-dependencies]
 serde = { workspace = true }

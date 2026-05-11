@@ -19,6 +19,7 @@
 //! straight-line legs and `Via { at, from_layer, to_layer }` markers
 //! at every layer change.
 
+use crate::congestion::FractionalCongestionGrid;
 use crate::planner::Obstacles;
 use klayout_core::Point;
 use smol_str::SmolStr;
@@ -91,6 +92,40 @@ pub fn multilayer_route(
     stack: &LayerStack,
     cfg: &MultiAStarConfig,
 ) -> Option<Vec<RouteSegment>> {
+    multilayer_route_impl(src, dst, obstacles, stack, cfg, None, 0)
+}
+
+/// Same as [`multilayer_route`] with fractional congestion cost on every
+/// same-layer step and via (shared 2D heatmap in world coordinates).
+pub fn multilayer_route_with_congestion(
+    src: (Point, usize),
+    dst: (Point, usize),
+    obstacles: &[Obstacles],
+    stack: &LayerStack,
+    cfg: &MultiAStarConfig,
+    congestion: Option<&FractionalCongestionGrid>,
+    congestion_weight: i64,
+) -> Option<Vec<RouteSegment>> {
+    multilayer_route_impl(
+        src,
+        dst,
+        obstacles,
+        stack,
+        cfg,
+        congestion,
+        congestion_weight,
+    )
+}
+
+fn multilayer_route_impl(
+    src: (Point, usize),
+    dst: (Point, usize),
+    obstacles: &[Obstacles],
+    stack: &LayerStack,
+    cfg: &MultiAStarConfig,
+    congestion: Option<&FractionalCongestionGrid>,
+    congestion_weight: i64,
+) -> Option<Vec<RouteSegment>> {
     if stack.layers.is_empty() {
         return None;
     }
@@ -106,7 +141,16 @@ pub fn multilayer_route(
         return None;
     }
 
-    let path_cells = astar_3d(&g, src_cell, dst_cell, obstacles, stack, cfg)?;
+    let path_cells = astar_3d(
+        &g,
+        src_cell,
+        dst_cell,
+        obstacles,
+        stack,
+        cfg,
+        congestion,
+        congestion_weight,
+    )?;
     Some(decompose_segments(&g, &path_cells))
 }
 
@@ -192,6 +236,8 @@ fn astar_3d(
     obstacles: &[Obstacles],
     stack: &LayerStack,
     cfg: &MultiAStarConfig,
+    congestion: Option<&FractionalCongestionGrid>,
+    congestion_weight: i64,
 ) -> Option<Vec<Cell>> {
     let mut g_score: HashMap<Cell, i64> = HashMap::new();
     let mut came_from: HashMap<Cell, Cell> = HashMap::new();
@@ -239,7 +285,13 @@ fn astar_3d(
                 } else {
                     grid.step * (cfg.off_axis_penalty - 1).max(0)
                 };
-            let tentative = cur.g + step_cost;
+            let soft = congestion
+                .map(|cg| {
+                    let p = grid.point(nb);
+                    (congestion_weight as f64 * cg.lookup_world(p) as f64).round() as i64
+                })
+                .unwrap_or(0);
+            let tentative = cur.g + step_cost + soft;
             if tentative < *g_score.get(&nb).unwrap_or(&i64::MAX) {
                 g_score.insert(nb, tentative);
                 came_from.insert(nb, cur.cell);
@@ -265,7 +317,13 @@ fn astar_3d(
             if !grid.in_bounds(nb) || cell_blocked(grid, nb, obstacles) {
                 continue;
             }
-            let tentative = cur.g + cfg.via_cost;
+            let soft = congestion
+                .map(|cg| {
+                    let p = grid.point(nb);
+                    (congestion_weight as f64 * cg.lookup_world(p) as f64).round() as i64
+                })
+                .unwrap_or(0);
+            let tentative = cur.g + cfg.via_cost + soft;
             if tentative < *g_score.get(&nb).unwrap_or(&i64::MAX) {
                 g_score.insert(nb, tentative);
                 came_from.insert(nb, cur.cell);

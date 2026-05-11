@@ -2,7 +2,8 @@
 
 use klayout_core::{Bbox, Point, Polygon};
 use klayout_drc::{
-    area_min, density, enclosing, overlap, separation, space, space_any, width, width_any,
+    area_min, density, density_window, density_window_with_config, enclosing, overlap, separation,
+    space, space_any, width, width_any, DensityPadding, DensityWindowConfig, DensityWindowOutput,
 };
 use klayout_geom::Region;
 
@@ -105,17 +106,64 @@ fn density_flags_above_maximum() {
 
 #[test]
 fn density_sliding_window_iterates() {
-    // Two distinct dense regions far apart in a sparse layout.
+    // Two blobs in one bbox — centered tile grid yields several out-of-range windows;
+    // results are merged so touching violation strips become one polygon.
     let r = region([
-        rect(0, 0, 90, 90),       // dense window
-        rect(500, 0, 510, 10),    // sparse window
+        rect(0, 0, 90, 90),       // dense tile
+        rect(500, 0, 510, 10),    // sparse strip
     ]);
-    // 100x100 windows, 100 step → 6 windows over x ∈ [0, 510], 1 over y.
     let viols = density(&r, (100, 100), (100, 100), 0.30, 0.70);
-    // Window at (0,0) is dense (above 70%), window at (500,0) is sparse
-    // (below 30%), windows in between are empty (also below 30%).
-    // All should fire.
-    assert!(viols.len() >= 2);
+    assert!(
+        !viols.is_empty(),
+        "expect merged violation geometry from multi-tile density scan",
+    );
+}
+
+#[test]
+fn density_strict_singleton_matches_klayout() {
+    let r = region([rect(0, 0, 10, 10)]);
+    let cfg = DensityWindowConfig::klayout_strict_singleton();
+    let v = density_window_with_config(&r, (100, 100), (100, 100), 0.30, 0.70, &cfg);
+    assert!(v.is_empty(), "bare KLayout 1×1 tile plan has no _tile → no violations");
+}
+
+#[test]
+fn density_padding_ignore_changes_denominator() {
+    // Narrow metal in a wide boundary strip — Ignore uses overlap area as denom.
+    let r = region([rect(0, 0, 50, 10)]);
+    let boundary = region([rect(0, 0, 200, 10)]);
+    let mut cfg = DensityWindowConfig::default();
+    cfg.boundary = Some(boundary);
+    cfg.padding = DensityPadding::Ignore;
+    let v = density_window_with_config(&r, (100, 100), (100, 100), 0.45, 0.55, &cfg);
+    assert!(
+        !v.is_empty(),
+        "50% line density in strip should fail a tight [0.45,0.55] band under padding_ignore",
+    );
+}
+
+#[test]
+fn density_with_density_emits_in_band_windows() {
+    let r = region([rect(0, 0, 50, 50)]);
+    let mut cfg = DensityWindowConfig::default();
+    cfg.output = DensityWindowOutput::InsideBand;
+    let got = density_window_with_config(&r, (100, 100), (100, 100), 0.20, 0.30, &cfg);
+    let outside = density_window_with_config(&r, (100, 100), (100, 100), 0.20, 0.30, &DensityWindowConfig::default());
+    assert!(outside.is_empty(), "25% in band → no without_density output");
+    assert_eq!(got.len(), 1);
+    assert_eq!(
+        got.bbox(),
+        Bbox::new(Point::new(-25, -25), Point::new(75, 75)),
+    );
+}
+
+#[test]
+fn density_window_matches_density() {
+    let r = region([rect(0, 0, 10, 10)]);
+    let a = density(&r, (100, 100), (100, 100), 0.30, 0.70);
+    let b = density_window(&r, (100, 100), (100, 100), 0.30, 0.70);
+    assert_eq!(a.len(), b.len());
+    assert_eq!(a.bbox(), b.bbox());
 }
 
 #[test]

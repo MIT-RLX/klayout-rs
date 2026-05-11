@@ -824,6 +824,709 @@
           "holes": []
         }
       ]
+    },
+    {
+      "rule": "density_window",
+      "name": "passes_in_range",
+      "rects_a": [
+        [
+          0,
+          0,
+          50,
+          50
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        100,
+        100
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.2,
+      "density_max": 0.3,
+      "density_padding": "zero",
+      "evaluate_singleton_tiles": true,
+      "result": []
+    },
+    {
+      "rule": "density_window",
+      "name": "with_density_in_band_emits_window",
+      "rects_a": [
+        [
+          0,
+          0,
+          50,
+          50
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        100,
+        100
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.2,
+      "density_max": 0.3,
+      "density_padding": "zero",
+      "evaluate_singleton_tiles": true,
+      "result": [
+        {
+          "hull": [
+            [
+              -25,
+              -25
+            ],
+            [
+              -25,
+              75
+            ],
+            [
+              75,
+              75
+            ],
+            [
+              75,
+              -25
+            ]
+          ],
+          "holes": []
+        }
+      ],
+      "density_output": "inside"
+    },
+    {
+      "rule": "density_window",
+      "name": "with_density_tile_origin_corner",
+      "rects_a": [
+        [
+          0,
+          0,
+          30,
+          30
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        100,
+        100
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.05,
+      "density_max": 0.15,
+      "density_padding": "zero",
+      "evaluate_singleton_tiles": true,
+      "result": [
+        {
+          "hull": [
+            [
+              0,
+              0
+            ],
+            [
+              0,
+              100
+            ],
+            [
+              100,
+              100
+            ],
+            [
+              100,
+              0
+            ]
+          ],
+          "holes": []
+        }
+      ],
+      "density_output": "inside",
+      "tile_origin": [
+        0,
+        0
+      ]
+    },
+    {
+      "rule": "density_window",
+      "name": "with_density_padding_ignore_strip",
+      "rects_a": [
+        [
+          0,
+          0,
+          50,
+          10
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        100,
+        100
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.45,
+      "density_max": 0.55,
+      "density_padding": "ignore",
+      "evaluate_singleton_tiles": true,
+      "result": [
+        {
+          "hull": [
+            [
+              0,
+              -45
+            ],
+            [
+              0,
+              55
+            ],
+            [
+              100,
+              55
+            ],
+            [
+              100,
+              -45
+            ]
+          ],
+          "holes": []
+        }
+      ],
+      "density_output": "inside",
+      "boundary_rects": [
+        [
+          0,
+          0,
+          200,
+          10
+        ]
+      ]
+    },
+    {
+      "rule": "density_window",
+      "name": "with_density_tile_count_fixed",
+      "rects_a": [
+        [
+          0,
+          0,
+          250,
+          10
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        100,
+        100
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.3,
+      "density_max": 0.7,
+      "density_padding": "zero",
+      "evaluate_singleton_tiles": true,
+      "result": [],
+      "density_output": "inside",
+      "tile_count": [
+        3,
+        1
+      ]
+    },
+    {
+      "rule": "density_window",
+      "name": "with_density_strict_singleton_no_output",
+      "rects_a": [
+        [
+          0,
+          0,
+          10,
+          10
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        100,
+        100
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.3,
+      "density_max": 0.7,
+      "density_padding": "zero",
+      "evaluate_singleton_tiles": false,
+      "result": [],
+      "density_output": "inside"
+    },
+    {
+      "rule": "density_window",
+      "name": "with_density_window_larger_than_step",
+      "rects_a": [
+        [
+          0,
+          0,
+          40,
+          40
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        120,
+        120
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.1,
+      "density_max": 0.2,
+      "density_padding": "zero",
+      "evaluate_singleton_tiles": true,
+      "result": [
+        {
+          "hull": [
+            [
+              -40,
+              -40
+            ],
+            [
+              -40,
+              80
+            ],
+            [
+              80,
+              80
+            ],
+            [
+              80,
+              -40
+            ]
+          ],
+          "holes": []
+        }
+      ],
+      "density_output": "inside"
+    },
+    {
+      "rule": "density_window",
+      "name": "with_density_sliding_multi_tile",
+      "rects_a": [
+        [
+          0,
+          0,
+          90,
+          90
+        ],
+        [
+          500,
+          0,
+          510,
+          10
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        100,
+        100
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.3,
+      "density_max": 0.7,
+      "density_padding": "zero",
+      "evaluate_singleton_tiles": true,
+      "result": [
+        {
+          "hull": [
+            [
+              -45,
+              -5
+            ],
+            [
+              -45,
+              95
+            ],
+            [
+              155,
+              95
+            ],
+            [
+              155,
+              -5
+            ]
+          ],
+          "holes": []
+        }
+      ],
+      "density_output": "inside"
+    },
+    {
+      "rule": "density_window",
+      "name": "flags_below_minimum",
+      "rects_a": [
+        [
+          0,
+          0,
+          10,
+          10
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        100,
+        100
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.3,
+      "density_max": 0.7,
+      "density_padding": "zero",
+      "evaluate_singleton_tiles": true,
+      "result": [
+        {
+          "hull": [
+            [
+              -45,
+              -45
+            ],
+            [
+              -45,
+              55
+            ],
+            [
+              55,
+              55
+            ],
+            [
+              55,
+              -45
+            ]
+          ],
+          "holes": []
+        }
+      ]
+    },
+    {
+      "rule": "density_window",
+      "name": "flags_above_maximum",
+      "rects_a": [
+        [
+          0,
+          0,
+          90,
+          90
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        100,
+        100
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.3,
+      "density_max": 0.7,
+      "density_padding": "zero",
+      "evaluate_singleton_tiles": true,
+      "result": [
+        {
+          "hull": [
+            [
+              -5,
+              -5
+            ],
+            [
+              -5,
+              95
+            ],
+            [
+              95,
+              95
+            ],
+            [
+              95,
+              -5
+            ]
+          ],
+          "holes": []
+        }
+      ]
+    },
+    {
+      "rule": "density_window",
+      "name": "sliding_multi_tile",
+      "rects_a": [
+        [
+          0,
+          0,
+          90,
+          90
+        ],
+        [
+          500,
+          0,
+          510,
+          10
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        100,
+        100
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.3,
+      "density_max": 0.7,
+      "density_padding": "zero",
+      "evaluate_singleton_tiles": true,
+      "result": [
+        {
+          "hull": [
+            [
+              155,
+              -5
+            ],
+            [
+              155,
+              95
+            ],
+            [
+              555,
+              95
+            ],
+            [
+              555,
+              -5
+            ]
+          ],
+          "holes": []
+        }
+      ]
+    },
+    {
+      "rule": "density_window",
+      "name": "window_larger_than_step",
+      "rects_a": [
+        [
+          0,
+          0,
+          40,
+          40
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        120,
+        120
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.1,
+      "density_max": 0.2,
+      "density_padding": "zero",
+      "evaluate_singleton_tiles": true,
+      "result": []
+    },
+    {
+      "rule": "density_window",
+      "name": "padding_ignore_strip",
+      "rects_a": [
+        [
+          0,
+          0,
+          50,
+          10
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        100,
+        100
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.45,
+      "density_max": 0.55,
+      "density_padding": "ignore",
+      "evaluate_singleton_tiles": true,
+      "result": [
+        {
+          "hull": [
+            [
+              100,
+              -45
+            ],
+            [
+              100,
+              55
+            ],
+            [
+              200,
+              55
+            ],
+            [
+              200,
+              -45
+            ]
+          ],
+          "holes": []
+        }
+      ],
+      "boundary_rects": [
+        [
+          0,
+          0,
+          200,
+          10
+        ]
+      ]
+    },
+    {
+      "rule": "density_window",
+      "name": "tile_origin_corner",
+      "rects_a": [
+        [
+          0,
+          0,
+          30,
+          30
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        100,
+        100
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.05,
+      "density_max": 0.15,
+      "density_padding": "zero",
+      "evaluate_singleton_tiles": true,
+      "result": [],
+      "tile_origin": [
+        0,
+        0
+      ]
+    },
+    {
+      "rule": "density_window",
+      "name": "tile_count_fixed",
+      "rects_a": [
+        [
+          0,
+          0,
+          250,
+          10
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        100,
+        100
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.3,
+      "density_max": 0.7,
+      "density_padding": "zero",
+      "evaluate_singleton_tiles": true,
+      "result": [
+        {
+          "hull": [
+            [
+              -25,
+              -45
+            ],
+            [
+              -25,
+              55
+            ],
+            [
+              275,
+              55
+            ],
+            [
+              275,
+              -45
+            ]
+          ],
+          "holes": []
+        }
+      ],
+      "tile_count": [
+        3,
+        1
+      ]
+    },
+    {
+      "rule": "density_window",
+      "name": "strict_singleton_no_output",
+      "rects_a": [
+        [
+          0,
+          0,
+          10,
+          10
+        ]
+      ],
+      "rects_b": [],
+      "min": 0,
+      "window": [
+        100,
+        100
+      ],
+      "step": [
+        100,
+        100
+      ],
+      "density_min": 0.3,
+      "density_max": 0.7,
+      "density_padding": "zero",
+      "evaluate_singleton_tiles": false,
+      "result": []
     }
   ]
 }

@@ -63,7 +63,7 @@ fn canonicalize(v: Value) -> Value {
 fn dump_to_json(name: &str) -> Value {
     let lib = build_lib();
     let def_bytes = std::fs::read(corpus_path(&format!("def/{name}.def"))).unwrap();
-    let design = read_def_full(&def_bytes, &lib).expect("parse def");
+    let design = read_def_full(&def_bytes, &lib, None).expect("parse def");
     let top_id = design.top.expect("def has no top cell");
     let cell = lib.get(top_id);
 

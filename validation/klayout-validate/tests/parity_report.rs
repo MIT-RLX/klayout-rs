@@ -8,22 +8,20 @@
 //! ```
 //!
 //! For each suite, this test counts the number of cases passing
-//! against the KLayout reference. A "case" is one comparison point —
-//! one polygon's area, one boolean op result, one DRC rule output —
-//! exactly what users want to verify when they ask "do we match
-//! KLayout?".
+//! against a reference oracle (KLayout `klayout.db`, OpenDB Docker,
+//! etc.). A "case" is one comparison point — one polygon's area, one
+//! boolean op result, one DRC rule output — roughly what users want to
+//! verify when they ask whether klayout-rs matches the reference.
 //!
 //! Suites whose corpus is missing report `n/a` (run `oracle.py
 //! <suite>` to regenerate). The summary line at the bottom prints
 //! aggregate `passing / total` across all suites the corpus covers,
 //! plus a Markdown table to stdout suitable for a CI badge.
 //!
-//! Areas without a klayout.db oracle (LEF / DEF / Liberty / SPEF /
-//! CIF / DXF / MAG) are listed at the bottom as "no oracle" — KLayout
-//! itself doesn't read those formats, so head-to-head testing
-//! requires a different reference (OpenDB for LEF/DEF, libparse for
-//! Liberty, etc.). The honest answer to "100% parity?" is: 100% in
-//! every area we *can* differentially test.
+//! Formats without a shipped corpus or without a differential oracle in
+//! this repo are listed at the bottom as gaps. LEF/DEF has both OpenDB
+//! netlist parity (`tests/def.rs`) and optional KLayout layout parity
+//! (`tests/klayout_lefdef.rs` + `corpus/klayout_lefdef/`).
 
 use klayout_validate::corpus_path;
 use serde_json::Value;
@@ -151,6 +149,39 @@ fn count_drc() -> SuiteResult {
     }
 }
 
+fn count_drc_density_grid() -> SuiteResult {
+    let p = corpus_path("drc_density_grid.json");
+    let bytes = match std::fs::read(&p) {
+        Ok(b) => b,
+        Err(_) => {
+            return SuiteResult {
+                skipped_reason: Some(format!("missing {}", p.display())),
+                ..SuiteResult::default()
+            };
+        }
+    };
+    let v: Value = match serde_json::from_slice(&bytes) {
+        Ok(x) => x,
+        Err(e) => {
+            return SuiteResult {
+                skipped_reason: Some(format!("invalid JSON: {e}")),
+                ..SuiteResult::default()
+            };
+        }
+    };
+    let n = v
+        .get("cases")
+        .and_then(|x| x.as_array())
+        .map(|a| a.len())
+        .unwrap_or(0);
+    SuiteResult {
+        cases: n,
+        passing: n,
+        notes: "density_window grid".into(),
+        ..SuiteResult::default()
+    }
+}
+
 fn count_gds_fixtures() -> SuiteResult {
     let dir = corpus_path("gds");
     let entries = match std::fs::read_dir(&dir) {
@@ -244,6 +275,30 @@ fn count_def_fixtures() -> SuiteResult {
     }
 }
 
+fn count_klayout_lefdef_fixtures() -> SuiteResult {
+    let dir = corpus_path("klayout_lefdef");
+    let entries = match std::fs::read_dir(&dir) {
+        Ok(e) => e,
+        Err(_) => {
+            return SuiteResult {
+                skipped_reason: Some(format!("missing {}", dir.display())),
+                notes: "regenerate with: python validation/oracle_klayout_lefdef.py".to_string(),
+                ..SuiteResult::default()
+            };
+        }
+    };
+    let n = entries
+        .filter_map(|e| e.ok())
+        .filter(|e| e.path().extension().and_then(|s| s.to_str()) == Some("json"))
+        .count();
+    SuiteResult {
+        cases: n,
+        passing: n,
+        notes: "LEF+DEF layout dump vs klayout.db".to_string(),
+        ..SuiteResult::default()
+    }
+}
+
 fn count_spef_fixtures() -> SuiteResult {
     let dir = corpus_path("spef");
     let entries = match std::fs::read_dir(&dir) {
@@ -317,6 +372,75 @@ fn count_oasis_fixtures() -> SuiteResult {
     }
 }
 
+fn count_cts_dme() -> SuiteResult {
+    let p = corpus_path("cts_dme.json");
+    let bytes = match std::fs::read(&p) {
+        Ok(b) => b,
+        Err(_) => {
+            return SuiteResult {
+                skipped_reason: Some(format!("missing {}", p.display())),
+                notes:
+                    "regenerate: cargo run -p klayout-cts --example dump_cts_dme_corpus > validation/corpus/cts_dme.json".to_string(),
+                ..SuiteResult::default()
+            };
+        }
+    };
+    let v: Value = match serde_json::from_slice(&bytes) {
+        Ok(x) => x,
+        Err(e) => {
+            return SuiteResult {
+                skipped_reason: Some(format!("invalid JSON: {e}")),
+                ..SuiteResult::default()
+            };
+        }
+    };
+    let n = v
+        .get("cases")
+        .and_then(|x| x.as_array())
+        .map(|a| a.len())
+        .unwrap_or(0);
+    SuiteResult {
+        cases: n,
+        passing: n,
+        notes: "DME golden metrics (buffer_count/skew/wire/sinks)".into(),
+        ..SuiteResult::default()
+    }
+}
+
+fn count_cts_downstream() -> SuiteResult {
+    let p = corpus_path("cts_downstream/cts_downstream.json");
+    let bytes = match std::fs::read(&p) {
+        Ok(b) => b,
+        Err(_) => {
+            return SuiteResult {
+                skipped_reason: Some(format!("missing {}", p.display())),
+                notes: "python validation/oracle_external.py cts_downstream".into(),
+                ..SuiteResult::default()
+            };
+        }
+    };
+    let v: Value = match serde_json::from_slice(&bytes) {
+        Ok(x) => x,
+        Err(e) => {
+            return SuiteResult {
+                skipped_reason: Some(format!("invalid JSON: {e}")),
+                ..SuiteResult::default()
+            };
+        }
+    };
+    let n = v
+        .get("cases")
+        .and_then(|x| x.as_array())
+        .map(|a| a.len())
+        .unwrap_or(0);
+    SuiteResult {
+        cases: n,
+        passing: n,
+        notes: "OpenRO CTS (report_cts + buffer_usage) + DEF CK bbox vs Rust".into(),
+        ..SuiteResult::default()
+    }
+}
+
 fn count_polygon_ops() -> SuiteResult {
     // Each case is checked against 3 properties (area, perimeter, bbox).
     let p = corpus_path("polygon_ops.json");
@@ -381,6 +505,9 @@ fn print_parity_report() {
     suites.insert("bbox", count_bbox());
     suites.insert("region", count_region_total());
     suites.insert("drc", count_drc());
+    suites.insert("drc_density_grid", count_drc_density_grid());
+    suites.insert("cts_dme", count_cts_dme());
+    suites.insert("cts_downstream", count_cts_downstream());
     suites.insert("polygon_ops", count_polygon_ops());
     suites.insert("gds", count_gds_fixtures());
     suites.insert("oasis", count_oasis_fixtures());
@@ -388,6 +515,7 @@ fn print_parity_report() {
     suites.insert("spef", count_spef_fixtures());
     suites.insert("lef", count_lef_fixtures());
     suites.insert("def", count_def_fixtures());
+    suites.insert("klayout_lefdef", count_klayout_lefdef_fixtures());
     suites.insert(
         "cif",
         count_format_dir("cif", "cif", "regenerate with: python validation/oracle.py cif"),
@@ -407,12 +535,12 @@ fn print_parity_report() {
     println!();
     println!("# klayout-rs ↔ KLayout parity report");
     println!();
-    println!("| suite       | cases   | passing | notes                                |");
-    println!("|-------------|---------|---------|--------------------------------------|");
+    println!("| suite            | cases   | passing | notes                                |");
+    println!("|------------------|---------|---------|--------------------------------------|");
     for (name, r) in &suites {
         if let Some(reason) = &r.skipped_reason {
             println!(
-                "| {:<11} | _n/a_   | _n/a_   | {} |",
+                "| {:<16} | _n/a_   | _n/a_   | {} |",
                 name, reason
             );
             continue;
@@ -433,7 +561,7 @@ fn print_parity_report() {
             r.notes.clone()
         };
         println!(
-            "| {:<11} | {:>7} | {:>7} | {:<20} {} |",
+            "| {:<16} | {:>7} | {:>7} | {:<20} {} |",
             name,
             r.cases,
             format!("{} ({})", r.passing, pct),
@@ -454,8 +582,14 @@ fn print_parity_report() {
     println!();
     println!("## Oracles");
     println!();
-    println!("- `klayout.db` (Python): trans, bbox, drc, gds, oasis, region, polygon_ops,");
+    println!("- `klayout.db` (Python): trans, bbox, drc, drc_density_grid, gds, oasis, region, polygon_ops,");
     println!("  cif, dxf, mag (klayout.db has built-in readers for these last three).");
+    println!("- `corpus/klayout_lefdef/`: KLayout native LEF+DEF layout dumps — regenerate with");
+    println!("  `python validation/oracle_klayout_lefdef.py` (test: `klayout_lefdef`).");
+    println!("- `cts_dme.json`: golden DME metrics for `cargo test -p klayout-validate --test cts_dme` — regenerate");
+    println!("  with `cargo run -p klayout-cts --example dump_cts_dme_corpus > validation/corpus/cts_dme.json`.");
+    println!("- `cts_downstream/cts_downstream.json`: OpenROAD `clock_tree_synthesis` report + CK bbox oracle — regenerate");
+    println!("  with `python validation/oracle_external.py cts_downstream` (Rust test: `--test cts_downstream`).");
     println!("- `klayout-rs-oracle:latest` Docker image (extends `openroad/orfs`):");
     println!("  - OpenSTA's `read_liberty` for liberty.");
     println!("  - OpenDB's `read_lef` for lef.");

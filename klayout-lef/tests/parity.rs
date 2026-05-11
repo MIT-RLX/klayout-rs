@@ -269,7 +269,7 @@ fn make_inv_library() -> klayout_core::Library {
 #[test]
 fn def_full_parses_all_sections() {
     let lib = make_inv_library();
-    let design = read_def_full(REAL_DEF, &lib).unwrap();
+    let design = read_def_full(REAL_DEF, &lib, None).unwrap();
     assert_eq!(design.design_name, "top");
     assert_eq!(design.units_dbu_per_micron, 1000);
     assert!(design.diearea.is_some());
@@ -371,13 +371,13 @@ fn lef_full_writer_roundtrip() {
 #[test]
 fn def_full_writer_roundtrip() {
     let lib = make_inv_library();
-    let design1 = read_def_full(REAL_DEF, &lib).unwrap();
+    let design1 = read_def_full(REAL_DEF, &lib, None).unwrap();
     let text = write_def_full(&lib, &design1);
 
     // Re-parse using a fresh library (we don't reuse `lib` since it
     // already has the top cell). Build a matching std-cell lib.
     let lib2 = make_inv_library();
-    let design2 = read_def_full(text.as_bytes(), &lib2).unwrap();
+    let design2 = read_def_full(text.as_bytes(), &lib2, None).unwrap();
 
     assert_eq!(design2.design_name, design1.design_name);
     assert_eq!(design2.rows.len(), design1.rows.len());

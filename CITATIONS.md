@@ -33,7 +33,7 @@ we provide a Rust implementation.
 | `width`, `space`, `separation` (axis-aligned) | Edge-pair distance check matching KLayout's `width_check` / `space_check` semantics | Klein 2017–, [KLayout Reference: Region](https://www.klayout.de/doc-qt5/code/class_Region.html) — the C++ engine in `db::Region` is the reference oracle. |
 | `enclosing`, `overlap` | Edge-pair check with chamfer extensions for endpoint corners | Same reference; chamfer formula reverse-engineered to match KLayout's `enclosing_check` / `overlap_check` byte-exactly on the 18-case validation corpus. |
 | `width` per-polygon edge enumeration | Orientation-bucketed bisection (`O(E·log E)` instead of `O(E²)`) | Original to this codebase; reduces a constant factor on highly-fractured polygons. The cross-polygon spatial index uses [`klayout-spatial`](klayout-spatial) atop `rstar`. |
-| `density` window scan | Sliding-window area integral | Folklore; see KLayout's `compute_density` for the reference behavior. |
+| `density_window` | KLayout `with_density` / `without_density`: padding zero/ignore, tile grid from `db::TilingProcessor`, merged `Region` output | `validation/corpus/drc.json` + `oracle.py`. |
 | Concave-corner detection | Cross-product sign test on consecutive hull edges | Standard computational-geometry result. |
 | Density fill, OPC, line-end protection (`density_fill`, `opc`, `lfd`) | Pattern-matching v1 implementations | Internal heuristics; not yet validated against an industry-standard rule deck. |
 

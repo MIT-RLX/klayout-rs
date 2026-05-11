@@ -26,6 +26,8 @@
 //! | `enclosing`   | Find inner-layer pieces not enclosed by ≥ `min` of outer.     |
 //! | `overlap`     | Find overlap regions narrower than `min`.                     |
 //! | `area_min`    | Find polygons with area < `min`.                              |
+//! | `density_window` / `density_window_with_config` | KLayout `without_density` / `with_density`: padding, boundary, origin, count, output band. |
+//! | `density`     | Same as `density_window` (legacy name).                       |
 
 pub mod density_fill;
 mod edge;
@@ -45,7 +47,8 @@ pub use hier::hierarchical_check;
 pub use lfd::{line_end_near_corner, small_jog, tight_u_shape};
 pub use opc::{hammerhead, serif, sraf, OpcConfig};
 pub use rules::{
-    area_min, density, enclosing, overlap, separation, space, space_any, width, width_any,
+    area_min, density, density_window, density_window_with_config, enclosing, overlap, separation,
+    space, space_any, width, width_any, DensityPadding, DensityWindowConfig, DensityWindowOutput,
 };
 pub use tile::{tile_binary, tile_unary, TileConfig};
 pub use violation::{violations_from_region, Violation};

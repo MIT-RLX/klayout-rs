@@ -215,16 +215,258 @@ pub fn overlap(a: &Region, b: &Region, min: i64) -> Region {
     polygons_to_region(violations)
 }
 
-/// Density check: flag windows where `region_area / window_area` falls
-/// outside `[min_density, max_density]`. Sliding window iteration over
-/// the region's bbox using `(window_w, window_h)` step + size.
+/// Which tiles KLayout selects: `without_density` (outside the band) vs
+/// `with_density` (inside the band). Matches the `inverse` flag in Ruby
+/// [`_with_density`](https://www.klayout.de/doc-qt5/about/drc_ref_layer.html#with_density).
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum DensityWindowOutput {
+    /// Ruby `without_density`: emit `bx` when density is **outside**
+    /// `(min_density, max_density)` (ε-open interval).
+    #[default]
+    OutsideBand,
+    /// Ruby `with_density`: emit `bx` when density is **inside** the band.
+    InsideBand,
+}
+
+/// How the density denominator is chosen — matches KLayout DRC
+/// `padding_zero` vs `padding_ignore` on [`with_density`] / [`without_density`].
 ///
-/// Densities are expressed as fractions in `[0.0, 1.0]`. Windows that
-/// fully exit the layout's bbox are skipped (no degenerate-edge windows).
+/// [`with_density`]: https://www.klayout.de/doc-qt5/about/drc_ref_layer.html#with_density
+#[derive(Clone, Copy, Debug, Default, PartialEq, Eq)]
+pub enum DensityPadding {
+    /// `density = input.area(bx) / bx.area`
+    #[default]
+    Zero,
+    /// `density = input.area(bx) / boundary.area(bx)` when `boundary.area(bx) > 0`
+    Ignore,
+}
+
+/// Options matching KLayout `tile_boundary`, `tile_origin`, `tile_count`, and padding.
+#[derive(Debug)]
+pub struct DensityWindowConfig {
+    pub padding: DensityPadding,
+    /// `tile_boundary` in KLayout — restricts the boundary used for `padding_ignore`
+    /// and contributes to the tiling frame. `None` uses a filled rectangle equal to
+    /// the primary **layer** bbox (after [`merge`]).
+    pub boundary: Option<Region>,
+    pub tile_origin: Option<(i64, i64)>,
+    pub tile_count: Option<(usize, usize)>,
+    /// `false` reproduces bare KLayout `TilingProcessor` behavior: a 1×1 tile plan
+    /// sets `_tile` unset, so the density script never runs → empty violations.
+    /// `true` (default) approximates setting a non-empty frame so single tiles are
+    /// still evaluated — needed for most PDK-scale decks and our checked-in corpus.
+    pub evaluate_singleton_tiles: bool,
+    /// `without_density` vs `with_density` result tiles.
+    pub output: DensityWindowOutput,
+}
+
+impl Default for DensityWindowConfig {
+    fn default() -> Self {
+        Self {
+            padding: DensityPadding::default(),
+            boundary: None,
+            tile_origin: None,
+            tile_count: None,
+            evaluate_singleton_tiles: true,
+            output: DensityWindowOutput::default(),
+        }
+    }
+}
+
+impl DensityWindowConfig {
+    /// Match bare KLayout for 1×1 tile grids (no explicit frame): no violations.
+    pub fn klayout_strict_singleton() -> Self {
+        Self {
+            evaluate_singleton_tiles: false,
+            ..Self::default()
+        }
+    }
+}
+
+/// Selected density windows: **violations** when [`DensityWindowOutput::OutsideBand`]
+/// (default), or **in-band tiles** when [`DensityWindowOutput::InsideBand`]
+/// (KLayout `with_density`).
 ///
-/// Returns a `Region` of violation rectangles — each one is a window
-/// whose density was out of bounds. Compose with `merge` if you want
-/// the merged-block view.
+/// The tile plan follows `db::TilingProcessor`: the layer∪boundary bounding
+/// box is enlarged by the window/step **border** before tile counts and the
+/// default centered origin are computed (see `dbTilingProcessor.cc`).
+///
+/// Returned geometry is **merged** (touching windows fuse), matching
+/// `validation/oracle.py` `dump_region`.
+pub fn density_window_with_config(
+    r: &Region,
+    window: (i64, i64),
+    step: (i64, i64),
+    min_density: f64,
+    max_density: f64,
+    config: &DensityWindowConfig,
+) -> Region {
+    if r.is_empty() || window.0 <= 0 || window.1 <= 0 || step.0 <= 0 || step.1 <= 0 {
+        return Region::empty();
+    }
+
+    let merged = merge(r);
+    let layer_bbox = merged.bbox();
+    if layer_bbox.is_empty() {
+        return Region::empty();
+    }
+
+    let boundary_merged = if let Some(ref b) = config.boundary {
+        merge(b)
+    } else {
+        Region::from_polygons([Polygon::rect(layer_bbox)])
+    };
+    let boundary_bbox = boundary_merged.bbox();
+    if boundary_bbox.is_empty() {
+        return Region::empty();
+    }
+
+    let tot_bbox = layer_bbox.union(&boundary_bbox);
+    if tot_bbox.is_empty() {
+        return Region::empty();
+    }
+
+    const DBU: f64 = 1.0;
+    const EPS: f64 = 1e-10;
+
+    let left = tot_bbox.min.x as f64;
+    let bottom = tot_bbox.min.y as f64;
+    let right = tot_bbox.max.x as f64;
+    let top = tot_bbox.max.y as f64;
+
+    let m_tw = step.0 as f64;
+    let m_th = step.1 as f64;
+
+    let tile_w = DBU * (0.5 + m_tw / DBU + EPS).floor();
+    let tile_h = DBU * (0.5 + m_th / DBU + EPS).floor();
+
+    // Match `db::TilingProcessor`: enlarge the tiling box by the tile border
+    // *before* computing tile counts and the centered origin (`dbTilingProcessor.cc`
+    // enlarges `tot_box` by `(m_tile_bx, m_tile_by)`).
+    let xb = (0.5 * (window.0 as f64 - m_tw)).max(0.0);
+    let yb = (0.5 * (window.1 as f64 - m_th)).max(0.0);
+    let xoverlap = (xb / DBU).round() as i64;
+    let yoverlap = (yb / DBU).round() as i64;
+
+    let left_e = left - xb;
+    let right_e = right + xb;
+    let bottom_e = bottom - yb;
+    let top_e = top + yb;
+    let tot_w_e = right_e - left_e;
+    let tot_h_e = top_e - bottom_e;
+
+    let (ntiles_w, ntiles_h) = if let Some((nx, ny)) = config.tile_count {
+        (nx.max(1), ny.max(1))
+    } else {
+        (
+            ((tot_w_e / m_tw - EPS).ceil() as usize).max(1),
+            ((tot_h_e / m_th - EPS).ceil() as usize).max(1),
+        )
+    };
+
+    let cx = 0.5 * (left_e + right_e);
+    let cy = 0.5 * (bottom_e + top_e);
+
+    let (l, b) = if let Some((ox, oy)) = config.tile_origin {
+        (
+            DBU * (0.5 + ox as f64 / DBU + EPS).floor(),
+            DBU * (0.5 + oy as f64 / DBU + EPS).floor(),
+        )
+    } else {
+        (
+            DBU * (0.5 + (cx - ntiles_w as f64 * 0.5 * tile_w) / DBU + EPS).floor(),
+            DBU * (0.5 + (cy - ntiles_h as f64 * 0.5 * tile_h) / DBU + EPS).floor(),
+        )
+    };
+
+    let tw_i = tile_w as i64;
+    let th_i = tile_h as i64;
+    let l_i = l as i64;
+    let b_i = b as i64;
+
+    let klayout_has_tiles = ntiles_w > 1 || ntiles_h > 1;
+    if !(klayout_has_tiles || config.evaluate_singleton_tiles) {
+        return Region::empty();
+    }
+
+    let mut violations: Vec<Polygon> = Vec::new();
+    let meas_rect = |meas: Bbox| Region::from_polygons([Polygon::rect(meas)]);
+
+    for iy in 0..ntiles_h {
+        for ix in 0..ntiles_w {
+            let clip = Bbox::new(
+                Point::new(l_i + ix as i64 * tw_i, b_i + iy as i64 * th_i),
+                Point::new(l_i + (ix as i64 + 1) * tw_i, b_i + (iy as i64 + 1) * th_i),
+            );
+            let meas = Bbox::new(
+                Point::new(clip.min.x - xoverlap, clip.min.y - yoverlap),
+                Point::new(clip.max.x + xoverlap, clip.max.y + yoverlap),
+            );
+            let mw = (meas.max.x - meas.min.x) as f64;
+            let mh = (meas.max.y - meas.min.y) as f64;
+            let meas_area = mw * mh;
+
+            let win_region = meas_rect(meas);
+            let inter = klayout_geom::intersection(&merged, &win_region);
+            let area_in: i128 = inter
+                .polygons()
+                .iter()
+                .map(|p| polygon_area2(p) / 2)
+                .sum();
+
+            let density = match config.padding {
+                DensityPadding::Zero => (area_in as f64) / meas_area,
+                DensityPadding::Ignore => {
+                    let binter = klayout_geom::intersection(&boundary_merged, &win_region);
+                    let ba: i128 = binter
+                        .polygons()
+                        .iter()
+                        .map(|p| polygon_area2(p) / 2)
+                        .sum();
+                    if ba <= 0 {
+                        continue;
+                    }
+                    (area_in as f64) / (ba as f64)
+                }
+            };
+
+            let in_range = density > min_density - EPS && density < max_density + EPS;
+            let emit = match config.output {
+                DensityWindowOutput::OutsideBand => !in_range,
+                DensityWindowOutput::InsideBand => in_range,
+            };
+            if emit {
+                violations.push(Polygon::rect(meas));
+            }
+        }
+    }
+
+    merge(&Region::from_polygons(violations))
+}
+
+/// Density-window DRC with default options (`padding_zero`, layer bbox as
+/// boundary proxy, centered tiling, singleton tiles evaluated).
+///
+/// For full KLayout parity knobs see [`density_window_with_config`].
+pub fn density_window(
+    r: &Region,
+    window: (i64, i64),
+    step: (i64, i64),
+    min_density: f64,
+    max_density: f64,
+) -> Region {
+    density_window_with_config(
+        r,
+        window,
+        step,
+        min_density,
+        max_density,
+        &DensityWindowConfig::default(),
+    )
+}
+
+/// Backward-compatible name for [`density_window`].
+#[inline]
 pub fn density(
     r: &Region,
     window: (i64, i64),
@@ -232,46 +474,7 @@ pub fn density(
     min_density: f64,
     max_density: f64,
 ) -> Region {
-    if r.is_empty() || window.0 <= 0 || window.1 <= 0 {
-        return Region::empty();
-    }
-    let bbox = r.bbox();
-    if bbox.is_empty() {
-        return Region::empty();
-    }
-    let merged = merge(r);
-    let window_area = (window.0 as f64) * (window.1 as f64);
-    let mut violations: Vec<Polygon> = Vec::new();
-
-    let step_x = step.0.max(1);
-    let step_y = step.1.max(1);
-    let mut y = bbox.min.y;
-    while y < bbox.max.y {
-        let mut x = bbox.min.x;
-        while x < bbox.max.x {
-            let win_bbox = klayout_core::Bbox::new(
-                klayout_core::Point::new(x, y),
-                klayout_core::Point::new(x + window.0, y + window.1),
-            );
-            // Density = (area of region within window) / window area.
-            let win_region =
-                Region::from_polygons([Polygon::rect(win_bbox)]);
-            let inter = klayout_geom::intersection(&merged, &win_region);
-            let area_in: i128 = inter
-                .polygons()
-                .iter()
-                .map(|p| polygon_area2(p) / 2)
-                .sum();
-            let density = (area_in as f64) / window_area;
-            if density < min_density || density > max_density {
-                violations.push(Polygon::rect(win_bbox));
-            }
-            x += step_x;
-        }
-        y += step_y;
-    }
-    // Don't auto-merge — each window is a distinct violation entry.
-    Region::from_polygons(violations)
+    density_window(r, window, step, min_density, max_density)
 }
 
 /// Width check that handles arbitrary-angle edges.

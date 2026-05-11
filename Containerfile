@@ -14,8 +14,10 @@
 # This image deliberately does NOT include klayout.db (the C++
 # reference engine) — the validation corpus is checked in, so CI
 # verifies parity without needing the oracle installed. To regenerate
-# the corpus, install klayout.db separately and run
-# `python validation/oracle.py` outside the container.
+# the corpus against a **pinned KLayout build**, use
+# `validation/docker/Dockerfile.klayout` + `run_benchmark.sh build-klayout-image`,
+# then `docker run ... python3 validation/oracle.py` with `ORACLE_CORPUS_DIR` or a
+# host venv. See `validation/docker/README.md`.
 
 # Pin to the same channel `rust-toolchain.toml` declares so a cargo
 # command inside the container uses the exact compiler the maintainers

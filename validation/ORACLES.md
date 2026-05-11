@@ -25,8 +25,10 @@ testable against at least one.
 
 | Oracle | Source | Suite directories | Regenerate |
 |--------|--------|---------------------|------------|
-| **KLayout C++** | `klayout.db` Python bindings | `corpus/{trans,bbox,region,polygon_ops,drc,gds/,oasis/}` | `python validation/oracle.py [<suite>]` |
-| **OpenSTA** (via Docker / `openroad/orfs`) | OpenSTA's `read_liberty` | `corpus/liberty/` | `python validation/oracle_external.py liberty` |
+| **KLayout C++** | `klayout.db` Python bindings | `corpus/{trans,bbox,region,polygon_ops,drc,drc_density_grid,gds/,oasis/}` | `python validation/oracle.py [<suite>]` (use `drc_density_grid` for the combinatorial density suite) |
+| **KLayout LEF/DEF layout** | `klayout.db` LEFDEF reader | `corpus/klayout_lefdef/` | `python validation/oracle_klayout_lefdef.py` |
+| **OpenROAD CTS + OpenDB** | Docker OpenRO (`validation/oracle_external.py`) | `corpus/cts_downstream/` | `python3 validation/oracle_external.py cts_downstream` (`klayout-rs-oracle:latest` image) |
+| **Golden CTS DME metrics** | `klayout-cts` deterministic dump (`dump_cts_dme_corpus` example) | `corpus/cts_dme.json` | `cargo run -q -p klayout-cts --example dump_cts_dme_corpus > validation/corpus/cts_dme.json` |
 
 ## Suite anatomy
 

@@ -1,0 +1,100 @@
+{
+  "git_sha": "b2d39af40a2aa0aed2fb0b29bb2e8425f88b3ce6",
+  "recorded_at": "20260511T120815Z",
+  "rustc": "rustc 1.94.0 (4a4ef493e 2026-03-02)",
+  "rustc_verbose": "rustc 1.94.0 (4a4ef493e 2026-03-02)\nbinary: rustc\ncommit-hash: 4a4ef493e3a1488c6e321570238084b38948f6db\ncommit-date: 2026-03-02\nhost: aarch64-apple-darwin\nrelease: 1.94.0\nLLVM version: 21.1.8",
+  "schema_version": 1,
+  "sections": {
+    "cargo_test_workspace": {
+      "exit_code": 0,
+      "failed": 0,
+      "ignored": 3,
+      "passed": 599,
+      "seconds": 2.39,
+      "status": "ok"
+    },
+    "criterion_benches": {
+      "args": [
+        "--sample-size",
+        "15",
+        "--warm-up-time",
+        "0.25",
+        "--measurement-time",
+        "0.35"
+      ],
+      "bench_suffix_filters": {
+        "klayout-route::rsmt": [
+          "--noplot",
+          "rsmt/(4|16|64)"
+        ]
+      },
+      "runs": [
+        {
+          "bench": "width",
+          "exit_code": 0,
+          "medians_by_id": {
+            "drc_width/grid_clean/16": "\u00b5s"
+          },
+          "package": "klayout-drc",
+          "raw_log": "validation/benchmark_snapshots/raw/criterion_klayout-drc__width_20260511T120815Z.txt",
+          "seconds": 20.04
+        },
+        {
+          "bench": "quadratic",
+          "exit_code": 0,
+          "medians_by_id": {},
+          "package": "klayout-place",
+          "raw_log": "validation/benchmark_snapshots/raw/criterion_klayout-place__quadratic_20260511T120815Z.txt",
+          "seconds": 0.09
+        },
+        {
+          "bench": "pathfinder",
+          "exit_code": 0,
+          "medians_by_id": {},
+          "package": "klayout-route",
+          "raw_log": "validation/benchmark_snapshots/raw/criterion_klayout-route__pathfinder_20260511T120815Z.txt",
+          "seconds": 6.79
+        },
+        {
+          "bench": "rsmt",
+          "exit_code": 0,
+          "medians_by_id": {
+            "rsmt/16": "ms",
+            "rsmt/4": "\u00b5s",
+            "rsmt/64": "ms"
+          },
+          "package": "klayout-route",
+          "raw_log": "validation/benchmark_snapshots/raw/criterion_klayout-route__rsmt_20260511T120815Z.txt",
+          "seconds": 15.76
+        }
+      ]
+    },
+    "docker": {
+      "available": true,
+      "exit_code": 0,
+      "gcd_synth": {
+        "ok": true,
+        "synth_odb_sha20": "76d4f1475502b9e7d586"
+      },
+      "pdk_smoke": {
+        "masters_loaded": 1,
+        "ok": true
+      },
+      "seconds": 19.14
+    },
+    "klayout_docker": {
+      "available": true,
+      "image": "klayout-rs-klayout:latest",
+      "skipped": "image klayout-rs-klayout:latest not present \u2014 run ./validation/docker/run_benchmark.sh build-klayout-image"
+    },
+    "parity_report": {
+      "exit_code": 0,
+      "overall": {
+        "passing": 4893,
+        "pct": 100.0,
+        "total": 4893
+      },
+      "seconds": 0.12
+    }
+  }
+}

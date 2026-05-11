@@ -1,0 +1,91 @@
+#!/usr/bin/env bash
+# klayout-rs — run common validation targets from the repo root.
+#
+# Usage:
+#   ./scripts/validate              # same as ./scripts/validate all
+#   ./scripts/validate all
+#   ./scripts/validate test          # cargo test --workspace (extra args forwarded)
+#   ./scripts/validate parity       # aggregated parity Markdown report (+ extra cargo test args)
+#   ./scripts/validate snapshot      # full regression snapshot (pass --fast for CI-sized run)
+#   ./scripts/validate docker       # ./validation/docker/run_benchmark.sh …
+#   ./scripts/validate clippy       # workspace clippy with -D warnings
+#   ./scripts/validate fmt          # rustfmt check
+#
+set -euo pipefail
+
+ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+cd "$ROOT"
+
+cmd="${1:-all}"
+shift || true
+
+_die() {
+  printf '%s\n' "scripts/validate: $*" >&2
+  exit 2
+}
+
+_help() {
+  cat <<EOF
+klayout-rs validation CLI (run from repo: ./scripts/validate <cmd>)
+
+  (default)          Quick gate: test + parity (same as \`all\`)
+  all, a             cargo test --workspace, then parity_report
+  test, t            cargo test --workspace [-- …args]
+  parity, p          cargo test -p klayout-validate --test parity_report -- --nocapture [-- …args]
+  snapshot           record_benchmark_snapshot.py [--fast] [--strict-klayout] [script args…]
+  compare            python3 validation/scripts/compare_benchmark_snapshot.py (pass paths as args)
+  docker, d          bash validation/docker/run_benchmark.sh (default subcommand: all)
+  oracle             python3 validation/oracle_external.py [-- …suite]
+  oracle-klayout     python3 validation/oracle.py [-- …suite]
+  clippy             cargo clippy --workspace --all-targets -- -D warnings [-- …args]
+  fmt                cargo fmt --all -- --check [-- …args]
+  help, -h           this message
+
+Examples:
+  ./scripts/validate test -p klayout-io --
+  ./scripts/validate docker pdk-smoke
+  ./scripts/validate snapshot --fast
+EOF
+}
+
+case "$cmd" in
+all | a)
+  cargo test --workspace
+  cargo test -p klayout-validate --test parity_report -- --nocapture
+  ;;
+test | t)
+  exec cargo test --workspace "$@"
+  ;;
+parity | p)
+  exec cargo test -p klayout-validate --test parity_report -- --nocapture "$@"
+  ;;
+snapshot)
+  exec python3 "$ROOT/validation/scripts/record_benchmark_snapshot.py" "$@"
+  ;;
+compare)
+  exec python3 "$ROOT/validation/scripts/compare_benchmark_snapshot.py" "$@"
+  ;;
+docker | d)
+  sub="${1:-all}"
+  shift || true
+  exec bash "$ROOT/validation/docker/run_benchmark.sh" "$sub" "$@"
+  ;;
+oracle)
+  exec python3 "$ROOT/validation/oracle_external.py" "$@"
+  ;;
+oracle-klayout | oracle_klayout)
+  exec python3 "$ROOT/validation/oracle.py" "$@"
+  ;;
+clippy)
+  exec cargo clippy --workspace --all-targets -- -D warnings "$@"
+  ;;
+fmt)
+  exec cargo fmt --all -- --check "$@"
+  ;;
+help | --help | -h)
+  _help
+  ;;
+*)
+  _die "unknown command: $cmd — run '$0 help'"
+  ;;
+esac

@@ -7,8 +7,10 @@
 //!
 //! This module is the *generator*: given a `Region` of existing
 //! metal and a window/tile spec, it returns a `Region` of fill
-//! polygons to add. The check side lives in [`crate::rules::density`]
-//! — they share the same window-iteration scaffolding.
+//! polygons to add. The check side lives in [`crate::rules::density_window`]
+//! (KLayout-aligned tiling). This fill heuristic still walks the metal bbox
+//! on a simple min-corner grid — it is not identical to the checker’s tile
+//! origin, but suffices for v1 fill insertion.
 //!
 //! Algorithm:
 //! 1. Walk the layout bbox in window-sized steps.
